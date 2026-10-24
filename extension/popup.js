@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ytSyncBtn = $("ytSyncBtn");
 
   const DEFAULT_LOCAL_API = "http://localhost:5000/api";
-  const DEFAULT_PROD_API = "https://studybuddy.rk-coachings20.workers.dev/api";
+  const DEFAULT_PROD_API = "https://studybuddy-mepq.onrender.com/api";
   let currentEnv = "local";
   let localUrl = DEFAULT_LOCAL_API;
   let prodUrl = DEFAULT_PROD_API;

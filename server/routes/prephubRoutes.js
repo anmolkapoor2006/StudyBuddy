@@ -24,7 +24,7 @@ router.get("/subjects", prephubController.getOverview);
 router.get("/subject/:subjectId", prephubController.getSubjectDetails);
 router.post("/import-sheet", prephubController.importSheet);
 
-// RK Coaching Student Verification Routes
+// Student / Batch Verification Routes
 router.post("/verify-passkey", prephubController.verifyPasskey);
 router.post("/request-verification", prephubController.requestVerification);
 router.get("/admin/pending-verifications", requireAdmin, prephubController.getPendingVerifications);

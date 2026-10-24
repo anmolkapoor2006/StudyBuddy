@@ -463,11 +463,10 @@ export default function Home() {
       {
         q: "What is StudyBuddy, what is its use, and who is it built for?",
         category: "Platform Purpose & Safe Harbor",
-        badge: "Built For Underdogs 🥊",
+        badge: "Built For Developers 💻",
         paragraphs: [
-          "StudyBuddy is strictly a non-commercial educational study suite created solely for personal learning, practice, and academic growth so no legal actions or commercial conflicts arise under fair use.",
-          "It is 100% free and built for the underdogs defying the odds—independent learners, students, and engineers striving to crack top tech interviews without paid paywalls or distraction rabbit holes.",
-          "While all core problem-solving tools, 3-tier solutions, and roadmaps are completely free for everyone, specialized premium curriculum content, offline mentorship batches, and advanced classroom roadmaps are provided exclusively for enrolled students of RK COACHING CLASSES.",
+          "StudyBuddy is an all-in-one developer learning ecosystem and practice tracker designed to streamline tech interview preparation and software engineering coursework.",
+          "It brings together curated DSA sheets, ad-free video course tracking, interactive problem solutions, and activity consistency streaks into one unified workspace.",
         ],
       },
       {
@@ -484,8 +483,8 @@ export default function Home() {
         category: "Official Recommendations",
         badge: "Official Platforms Recommended",
         paragraphs: [
-          "For official problem submissions, verified contest ratings, official company tags, and original long-form video tutorials, we strongly recommend and urge every learner to support and use the official platforms: LeetCode (leetcode.com), Codeforces (codeforces.com), and takeUforward (TUF / Striver - takeuforward.org).",
-          "StudyBuddy serves as your distraction-free personal study workbench—keeping your 3-tier solutions, 1-click judge forwarder, and ad-free lecture notes organized in one place alongside these official platforms.",
+          "For official problem submissions, verified contest ratings, official company tags, and original long-form video tutorials, we strongly recommend supporting official platforms: LeetCode (leetcode.com), Codeforces (codeforces.com), and takeUforward (TUF - takeuforward.org).",
+          "StudyBuddy serves as your distraction-free personal study workbench—keeping your 3-tier solutions, 1-click judge forwarder, and ad-free lecture notes organized in one place alongside these platforms.",
         ],
       },
       {
@@ -498,8 +497,8 @@ export default function Home() {
         features: [
           {
             icon: "⚡",
-            title: "100% LeetCode Solved Sync",
-            desc: "Browser extension syncs accepted LeetCode solutions directly into your activity heatmaps and roadmaps.",
+            title: "Live Problem Sync",
+            desc: "Sync accepted solutions directly into your activity heatmaps and roadmaps.",
           },
           {
             icon: "🧩",
@@ -524,12 +523,11 @@ export default function Home() {
         ],
       },
       {
-        q: "What is RK COACHING CLASSES and what is its role?",
-        category: "Institutional Patronage",
-        badge: "Academic Patron • Balotra, RJ",
+        q: "Is StudyBuddy completely free to use?",
+        category: "Platform Access",
+        badge: "100% Free & Open",
         paragraphs: [
-          "RK COACHING CLASSES (Balotra, Rajasthan) is our foundational academic patron and proud family business, built on 10+ years of proven mathematics and science mentorship.",
-          "StudyBuddy originated as an internal study workspace for coaching students. Today, while the complete algorithmic suite is 100% free for underdogs and independent learners everywhere, enrolled RK Coaching Classes students receive dedicated classroom roadmaps, offline mentorship, and exclusive academic modules.",
+          "Yes! StudyBuddy is 100% free for everyone. All DSA sheets, problem trackers, 3-tier solutions, video note-taking tools, and consistency streaks are fully unlocked for all learners.",
         ],
       },
     ],
@@ -538,11 +536,11 @@ export default function Home() {
 
   const billuFaqTips = useMemo(
     () => [
-      "100% free for underdogs! RK Coaching students get dedicated classroom tracks.",
-      "Zero paywalls or monetization! All data is strictly public or user-served.",
+      "100% free and open for independent learners and developers worldwide!",
+      "Zero paywalls or monetization! All data is strictly for personal study.",
       "For official contests & submissions, always check LeetCode & Codeforces!",
       "15,600+ problems, 3-tier solutions, and Ad - free Video all in one place!",
-      "Rooted in Balotra, Rajasthan — 10+ years of family-run mentorship!",
+      "Track your learning daily and build unbreakable consistency streaks!",
     ],
     []
   );
@@ -735,7 +733,7 @@ export default function Home() {
               Built for underdogs defying the odds
             </span>
             <span className="text-slate-400 dark:text-neutral-600 hidden sm:inline">•</span>
-            <span className="text-[11px] text-amber-700 dark:text-amber-300/90 font-mono hidden sm:inline">Premium Modules for RK Coaching Students</span>
+            <span className="text-[11px] text-amber-700 dark:text-amber-300/90 font-mono hidden sm:inline">Curated DSA & CS Roadmaps</span>
           </div>
 
           {/* Hero Title — Centered Structure with Fluid Vertical Scale */}
@@ -815,12 +813,10 @@ export default function Home() {
               <div className="relative flex items-center justify-center">
                 {/* Aura Glow */}
                 <div className="absolute inset-0 rounded-full bg-red-500/20 blur-xl group-hover:bg-red-500/35 transition-all" />
-                {/* 3D Robot Image */}
-                <img
-                  src="/assets/red-bug-3d.png"
-                  alt="3D Syntax Bot"
-                  className="relative w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_10px_20px_rgba(239,68,68,0.5)] group-hover:scale-105 active:scale-95 transition-transform"
-                />
+                {/* Syntax Bot Avatar */}
+                <div className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-red-500/20 via-neutral-900 to-red-950/40 border border-red-500/40 flex items-center justify-center drop-shadow-[0_10px_20px_rgba(239,68,68,0.5)] group-hover:scale-105 active:scale-95 transition-transform">
+                  <Code2 className="w-7 h-7 sm:w-10 sm:h-10 text-red-400" />
+                </div>
                 {/* Muzzle Flash Blast on Right */}
                 <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-amber-300 to-white blur-[2px] animate-[muzzleFlash_0.7s_ease-in-out_infinite] pointer-events-none" />
               </div>
@@ -887,7 +883,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Player 2: 3D Cyan Robot Bug */}
+            {/* Player 2: 3D Cyan Robot Bot */}
             <div
               onClick={fireP2}
               className={`group flex items-center gap-3 cursor-pointer select-none transition-transform duration-200 ${battleState.p2Recoil ? "animate-[recoilRight_0.4s_ease-out]" : "animate-[bugBobRight_2.7s_ease-in-out_infinite]"
@@ -913,12 +909,10 @@ export default function Home() {
               <div className="relative flex items-center justify-center">
                 {/* Aura Glow */}
                 <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-xl group-hover:bg-cyan-500/35 transition-all" />
-                {/* 3D Robot Image */}
-                <img
-                  src="/assets/cyan-bug-3d.png"
-                  alt="3D Runtime Bot"
-                  className="relative w-16 h-16 sm:w-24 sm:h-24 object-contain drop-shadow-[0_10px_20px_rgba(34,211,238,0.5)] group-hover:scale-105 active:scale-95 transition-transform"
-                />
+                {/* Runtime Bot Avatar */}
+                <div className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 via-neutral-900 to-cyan-950/40 border border-cyan-500/40 flex items-center justify-center drop-shadow-[0_10px_20px_rgba(34,211,238,0.5)] group-hover:scale-105 active:scale-95 transition-transform">
+                  <Terminal className="w-7 h-7 sm:w-10 sm:h-10 text-cyan-400" />
+                </div>
                 {/* Muzzle Flash Blast on Left */}
                 <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-gradient-to-l from-cyan-400 via-blue-300 to-white blur-[2px] animate-[muzzleFlash_0.7s_ease-in-out_infinite] pointer-events-none" />
               </div>
@@ -1207,9 +1201,9 @@ export default function Home() {
 
         {/* 2-Column Split: Creative Billu on Left, Headings with Arrows on Right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left Column: Creative Billu Mascot Presentation */}
+          {/* Left Column: Interactive Feature Highlight Card */}
           <div className="lg:col-span-5 flex flex-col items-center text-center relative">
-            {/* Billu Speech Bubble */}
+            {/* Feature Tip Bubble */}
             <div
               className={`relative mb-3 px-5 py-3.5 rounded-2xl bg-white/95 dark:bg-neutral-900/95 border backdrop-blur-md max-w-sm transition-all duration-300 ${CORE_FEATURES[activeFeature].bubbleBorder}`}
             >
@@ -1220,34 +1214,39 @@ export default function Home() {
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-neutral-900 border-r border-b border-inherit rotate-45" />
             </div>
 
-            {/* Billu 3D Character Stand */}
-            <div className="relative w-56 h-64 sm:w-64 sm:h-72 flex items-center justify-center rounded-3xl bg-gradient-to-b from-indigo-50/70 via-slate-100/40 to-transparent dark:from-[#2a0b12]/40 dark:via-[#160509]/30 dark:to-transparent border border-slate-200/70 dark:border-red-950/40">
-              {/* Warm Dynamic Backlight Glow Aura */}
+            {/* Dynamic Feature Visual Showcase */}
+            <div className="relative w-56 h-64 sm:w-64 sm:h-72 flex flex-col items-center justify-center rounded-3xl bg-gradient-to-b from-indigo-50/70 via-slate-100/40 to-transparent dark:from-[#2a0b12]/40 dark:via-[#160509]/30 dark:to-transparent border border-slate-200/70 dark:border-red-950/40 p-6 overflow-hidden">
+              {/* Dynamic Aura Glow */}
               <div
                 className={`absolute inset-4 rounded-full bg-gradient-to-tr ${CORE_FEATURES[activeFeature].billuGlow} blur-2xl pointer-events-none transition-all duration-500 opacity-60 dark:opacity-100`}
               />
 
-              {/* 3D Billu Mascot Image */}
-              <img
-                src="/assets/billu-mascot-3d.png"
-                alt="Billu the Fox Mascot"
-                className="relative z-10 w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] dark:drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] animate-[floatSlow_4s_ease-in-out_infinite]"
-              />
+              <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border transition-all duration-300 mb-3 shadow-lg ${CORE_FEATURES[activeFeature].iconStyle}`}>
+                  {(() => {
+                    const ActiveIcon = CORE_FEATURES[activeFeature].icon;
+                    return <ActiveIcon className="w-8 h-8 sm:w-10 sm:h-10" />;
+                  })()}
+                </div>
+                <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  {CORE_FEATURES[activeFeature].title}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-neutral-400 mt-1 max-w-[200px] line-clamp-2">
+                  {CORE_FEATURES[activeFeature].desc}
+                </p>
+              </div>
 
-              {/* Realistic Ground Pedestal & Ambient Contact Shadows */}
+              {/* Pedestal Shadows */}
               <div className="absolute bottom-2.5 w-40 h-3 rounded-[100%] bg-slate-900/30 dark:bg-black/95 blur-[2px] pointer-events-none" />
               <div className="absolute bottom-1 w-52 h-6 rounded-[100%] bg-slate-900/20 dark:bg-black/70 blur-md pointer-events-none" />
-              <div
-                className={`absolute -bottom-0.5 w-48 h-6 rounded-[100%] bg-gradient-to-r ${CORE_FEATURES[activeFeature].billuGlow} blur-lg opacity-40 dark:opacity-50 pointer-events-none transition-all duration-500`}
-              />
             </div>
 
-            {/* Mascot Identification Badge */}
+            {/* Feature Mode Badge */}
             <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-white/90 dark:bg-neutral-950/80 border border-slate-200 dark:border-neutral-800 shadow-xs dark:shadow-none text-[10px] font-mono text-slate-600 dark:text-neutral-400">
-              <span className="text-sm">🦊</span>
-              <span className="font-semibold text-slate-900 dark:text-neutral-200">Billu</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E04D4D] animate-pulse" />
+              <span className="font-semibold text-slate-900 dark:text-neutral-200">{CORE_FEATURES[activeFeature].badgeText}</span>
               <span className="text-slate-400 dark:text-neutral-600">•</span>
-              <span className="text-[#C23333] dark:text-[#E04D4D] font-bold">Chief Mentor</span>
+              <span className="text-[#C23333] dark:text-[#E04D4D] font-bold">Live Preview</span>
             </div>
           </div>
 
@@ -1513,11 +1512,11 @@ export default function Home() {
                     <div className="p-3 rounded-xl bg-[#14101e] border border-neutral-800 flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#E04D4D] to-orange-500 flex items-center justify-center text-white font-bold text-xs shadow-[0_0_12px_rgba(224,77,77,0.4)]">
-                          SA
+                          AK
                         </div>
                         <div>
-                          <span className="text-xs font-bold text-white block">Shubham Agrawal</span>
-                          <span className="text-[10px] text-neutral-400 font-mono">shubham@studybuddy.dev</span>
+                          <span className="text-xs font-bold text-white block">Anmol Kapoor</span>
+                          <span className="text-[10px] text-neutral-400 font-mono">anmol@studybuddy.dev</span>
                         </div>
                       </div>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center gap-1 font-semibold">
@@ -1611,36 +1610,43 @@ export default function Home() {
           </div>
 
           {/* Billu Mascot Celebrating on Right Stand (5 cols) */}
+          {/* Right Column: Live Sync Status Monitor Card */}
           <div className="lg:col-span-5 flex flex-col items-center text-center relative">
-            {/* Billu Speech Bubble */}
+            {/* Status Tip Bubble */}
             <div className="relative mb-3 px-5 py-3.5 rounded-2xl bg-white/95 dark:bg-neutral-900/95 border border-red-500/30 dark:border-red-500/40 backdrop-blur-md max-w-sm transition-all duration-300 shadow-[0_8px_20px_rgba(224,77,77,0.15)]">
               <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 text-[#E04D4D] text-[10px] font-mono font-bold mb-1.5">
-                <span>🦊</span>
-                <span>Billu • Solved Companion</span>
+                <Sparkles className="w-3 h-3" />
+                <span>Live Sync Active</span>
               </div>
               <p className="text-xs text-slate-800 dark:text-neutral-200 font-medium leading-relaxed">
-                "{billuExtensionQuotes[extensionTab]}"
+                "Accepted solutions on LeetCode & Codeforces sync immediately into your streak and roadmaps."
               </p>
               {/* Bubble Arrow Tail */}
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-neutral-900 border-r border-b border-inherit rotate-45" />
             </div>
 
-            {/* Billu 3D Cutout Stand */}
-            <div className="relative w-56 h-64 sm:w-64 sm:h-72 flex items-center justify-center rounded-3xl bg-gradient-to-b from-red-50/70 via-slate-100/40 to-transparent dark:from-[#2e0910]/40 dark:via-[#180408]/30 dark:to-transparent border border-slate-200/70 dark:border-red-950/40">
+            {/* Live Sync Monitor Display */}
+            <div className="relative w-56 h-64 sm:w-64 sm:h-72 flex flex-col items-center justify-center rounded-3xl bg-gradient-to-b from-red-50/70 via-slate-100/40 to-transparent dark:from-[#2e0910]/40 dark:via-[#180408]/30 dark:to-transparent border border-slate-200/70 dark:border-red-950/40 p-6 overflow-hidden">
               {/* Dynamic Aura Glow */}
               <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-red-500/20 via-orange-500/20 to-red-500/10 blur-2xl pointer-events-none opacity-70 dark:opacity-100" />
 
-              {/* 3D Billu Solved Mascot Image */}
-              <img
-                src="/assets/billu-solved-3d.png"
-                alt="Billu Solved Celebration Mascot"
-                className="relative z-10 w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] dark:drop-shadow-[0_20px_40px_rgba(0,0,0,0.85)] animate-[floatSlow_4s_ease-in-out_infinite]"
-              />
+              <div className="relative z-10 flex flex-col items-center text-center space-y-3">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-neutral-900 to-emerald-950/30 border border-emerald-500/40 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-400 animate-bounce" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">Auto-Mark Solved</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-neutral-400 mt-0.5">Real-time judge synchronization</p>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span>SYNCHRONIZED</span>
+                </div>
+              </div>
 
               {/* Ambient Pedestal Shadows */}
               <div className="absolute bottom-2.5 w-40 h-3 rounded-[100%] bg-slate-900/30 dark:bg-black/95 blur-[2px] pointer-events-none" />
               <div className="absolute bottom-1 w-52 h-6 rounded-[100%] bg-slate-900/20 dark:bg-black/70 blur-md pointer-events-none" />
-              <div className="absolute -bottom-0.5 w-48 h-6 rounded-[100%] bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/10 blur-lg opacity-50 pointer-events-none" />
             </div>
 
             {/* Sub-label Badge */}
@@ -1780,48 +1786,37 @@ export default function Home() {
         <div className="w-1/2 max-w-2xl h-[2px] bg-gradient-to-r from-transparent via-[#E04D4D] to-transparent rounded-full shadow-[0_0_12px_rgba(224,77,77,0.45)] animate-[dividerGlow_3.5s_ease-in-out_infinite]" />
       </div>
 
-      {/* 8. Comprehensive Platform FAQ & Fair Use Safe Harbor */}
+      {/* 8. Comprehensive Platform FAQ & Safe Harbor */}
       <section className="relative z-10 max-w-5xl mx-auto px-6 sm:px-10 py-16">
-        {/* FAQ Header with Guessing Billu */}
+        {/* FAQ Header */}
         <div className="relative max-w-4xl mx-auto mb-12 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
           {/* Heading Text */}
           <div className="text-center md:text-left flex-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/25 text-[#E04D4D] text-xs font-mono font-bold uppercase tracking-wider mb-3">
               <HelpCircle className="w-3.5 h-3.5" />
-              <span>Platform FAQs & Safe Harbor</span>
+              <span>Platform FAQs & Help</span>
             </div>
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               <TypewriterText text="Frequently Asked Questions" speed={60} delay={150} />
             </h3>
             <p className="text-slate-600 dark:text-neutral-400 text-xs sm:text-sm mt-2 max-w-lg leading-relaxed [text-wrap:balance]">
-              Clear facts on educational purpose, public resources, and our academic partnership with RK Coaching Classes.
+              Clear facts on educational purpose, public resources, and how to get the most out of StudyBuddy.
             </p>
           </div>
 
-          {/* 3D Billu in Guessing Pose beside Heading (Direct on Canvas, No Placeholder Box) */}
-          <div className="relative shrink-0 flex items-center gap-3 sm:gap-4">
-            {/* Billu Figure */}
-            <div className="relative w-24 h-32 sm:w-28 sm:h-36 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full bg-amber-500/20 blur-xl pointer-events-none" />
-              <img
-                src="/assets/billu-guessing-3d.png"
-                alt="Billu Fox Mascot Guessing Pose"
-                className="relative z-10 w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] animate-[floatSlow_4s_ease-in-out_infinite]"
-              />
-              <div className="absolute bottom-1 w-20 h-2 rounded-[100%] bg-black/95 blur-[2px] pointer-events-none" />
-              <div className="absolute bottom-0 w-24 h-4 rounded-[100%] bg-black/70 blur-md pointer-events-none" />
+          {/* Quick Help Card */}
+          <div className="relative shrink-0 flex items-center gap-3 sm:gap-4 p-4 rounded-2xl bg-white/90 dark:bg-neutral-900/60 border border-slate-200 dark:border-neutral-800 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-[#E04D4D]">
+              <Sparkles className="w-5 h-5" />
             </div>
-
-            {/* Speech Bubble / Wondering Note */}
-            <div className="flex flex-col text-left max-w-[180px] sm:max-w-[220px]">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] font-mono text-amber-600 dark:text-amber-300 font-bold mb-1.5 w-fit">
-                <span>🦊</span>
-                <span>Billu is Wondering</span>
-              </div>
-              <p className="text-xs text-slate-700 dark:text-neutral-300 leading-snug font-medium">
-                "{openFaq !== null
+            <div className="flex flex-col text-left max-w-[200px]">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#E04D4D] font-bold">
+                Quick Tip
+              </span>
+              <p className="text-xs text-slate-700 dark:text-neutral-300 leading-snug font-medium mt-0.5">
+                {openFaq !== null
                   ? billuFaqTips[openFaq]
-                  : "Got questions? Click any question below to see how StudyBuddy works!"}"
+                  : "Click any question below to see how StudyBuddy works!"}
               </p>
             </div>
           </div>
@@ -1948,55 +1943,39 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main Footer Content */}
           <div className="flex flex-col lg:flex-row justify-between items-start gap-10 lg:gap-16 pb-10 border-b border-slate-200 dark:border-neutral-900">
-            {/* Left: Powered by RK COACHING CLASSES (Prominent Branding) */}
+            {/* Left: StudyBuddy Platform Overview */}
             <div className="max-w-xl space-y-3.5">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/25 text-[#E04D4D] text-[10px] font-bold uppercase tracking-wider">
-                <GraduationCap className="w-3.5 h-3.5" />
-                <span>Academic & Institutional Patron</span>
+                <Code2 className="w-3.5 h-3.5" />
+                <span>Developer Learning Ecosystem</span>
               </div>
 
               <div>
                 <span className="text-[11px] uppercase tracking-widest text-slate-500 dark:text-neutral-400 font-semibold block mb-1">
-                  Powered by
+                  Built for Developers
                 </span>
                 <h4 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                  RK COACHING CLASSES
+                  STUDYBUDDY
                 </h4>
               </div>
 
               <p className="text-xs text-slate-600 dark:text-neutral-400 leading-relaxed max-w-md">
-                A premier academic institution and family business in Balotra, Rajasthan — dedicated to igniting curiosity, mathematical rigor, and student excellence for more than ten years.
+                An all-in-one workspace designed to accelerate algorithmic problem-solving, structured video learning, and consistent engineering interview preparation.
               </p>
 
               <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-neutral-400 pt-1">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  Balotra, Rajasthan
+                  4,500+ Curated Problems
                 </span>
                 <span className="text-slate-300 dark:text-neutral-700">•</span>
-                <span>Family-Run Academic Legacy</span>
+                <span>3-Tier Solutions</span>
                 <span className="text-slate-300 dark:text-neutral-700">•</span>
-                <span>10+ Years of Proven Mentorship</span>
-              </div>
-
-              {/* Verified Google Reviews Button */}
-              <div className="pt-3">
-                <a
-                  href="https://www.google.com/search?kgmid=/g/11sw3lygl4&hl=en-IN&q=R.K+Coaching+Classes&shem=epsd1,ltae&shndl=30&source=sh/x/loc/osrp/m1/4&kgs=b766ce970394304d&utm_source=epsd1,ltae,sh/x/loc/osrp/m1/4&zx=1790988522881"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white dark:bg-[#080d1a] border border-amber-500/40 dark:border-blue-900/80 hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-[#0c1324] hover:shadow-[0_0_30px_rgba(251,191,36,0.3)] active:scale-[0.98] transition-all duration-300 group shadow-xs"
-                >
-                  <Star className="w-5 h-5 text-amber-500 dark:text-amber-400 fill-amber-400 shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300" />
-                  <span className="font-extrabold tracking-wider text-xs sm:text-sm uppercase text-slate-800 dark:text-neutral-100 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
-                    VIEW VERIFIED GOOGLE REVIEWS
-                  </span>
-                  <ArrowRight className="w-5 h-5 text-slate-400 dark:text-neutral-400 group-hover:text-slate-900 dark:group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ml-0.5" />
-                </a>
+                <span>Ad-Free Video Courses</span>
               </div>
             </div>
 
-            {/* Right: Platform Navigation & Learning Network grouped and pinned right */}
+            {/* Right: Platform Navigation & Links */}
             <div className="flex flex-col sm:flex-row gap-12 sm:gap-16 lg:gap-24 sm:ml-auto shrink-0 lg:pt-8">
               {/* Middle: Platform Navigation */}
               <div className="space-y-4 min-w-[180px]">
@@ -2031,40 +2010,33 @@ export default function Home() {
                 </ul>
               </div>
 
-              {/* Right: Learning Network & Channels */}
-              <div className="space-y-4 max-w-[310px]">
+              {/* Right: Resources */}
+              <div className="space-y-4 max-w-[240px]">
                 <h5 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-neutral-100">
-                  Learning Network
+                  Curated Sheets
                 </h5>
-                <div className="space-y-3 text-sm text-slate-600 dark:text-neutral-300">
-                  <a
-                    href="https://youtube.com/@rkcoachingclasses?si=KfYdwL2LGWjAbTTm"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-white transition-colors group"
-                  >
-                    <Play className="w-4.5 h-4.5 text-red-500 group-hover:scale-110 transition-transform" />
-                    <span>RK Coaching YouTube</span>
-                    <ExternalLink className="w-4 h-4 text-slate-400 dark:text-neutral-500 group-hover:text-slate-700 dark:group-hover:text-neutral-300 transition-colors ml-auto" />
-                  </a>
-
-                  <a
-                    href="https://www.instagram.com/rk.coachings20?igsh=ajl5am10cTlyaGw5"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-white transition-colors group"
-                  >
-                    <span className="w-4.5 h-4.5 flex items-center justify-center font-bold text-pink-500 dark:text-pink-400 text-xs group-hover:scale-110 transition-transform">
-                      IG
-                    </span>
-                    <span>@rk.coachings20</span>
-                    <ExternalLink className="w-4 h-4 text-slate-400 dark:text-neutral-500 group-hover:text-slate-700 dark:group-hover:text-neutral-300 transition-colors ml-auto" />
-                  </a>
-
-                  <p className="text-xs text-slate-500 dark:text-neutral-400 pt-1 leading-relaxed">
-                    Building deep conceptual foundations from school to advanced algorithmic engineering.
-                  </p>
-                </div>
+                <ul className="space-y-3 text-sm text-slate-600 dark:text-neutral-300">
+                  <li>
+                    <Link to="/practice" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                      Striver SDE 180 & A2Z
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/practice" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                      NeetCode 150 & Blind 75
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/practice" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                      Codeforces Ladders
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/prephub" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                      Core CS (OS, DBMS, Networks)
+                    </Link>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
@@ -2080,15 +2052,15 @@ export default function Home() {
               <span className="text-[11px] text-slate-400 dark:text-neutral-500 font-mono">• Code • Study • Track</span>
             </div>
 
-            {/* Middle: Copyright & Made with Love */}
+            {/* Middle: Copyright */}
             <div className="text-center">
               <p className="text-slate-600 dark:text-neutral-300 font-medium">
-                © {new Date().getFullYear()} <span className="text-slate-900 dark:text-white font-semibold">Shubham Agrawal</span>. All rights reserved.
+                © {new Date().getFullYear()} <span className="text-slate-900 dark:text-white font-semibold">Anmol Kapoor</span>. All rights reserved.
               </p>
               <p className="text-[11px] text-slate-400 dark:text-neutral-500 mt-0.5 flex items-center justify-center gap-1.5">
                 <span>Made with</span>
                 <Heart className="w-3 h-3 text-red-500 fill-red-500 inline" />
-                <span>for underdogs & ambitious learners</span>
+                <span>for developers & learners</span>
               </p>
             </div>
 

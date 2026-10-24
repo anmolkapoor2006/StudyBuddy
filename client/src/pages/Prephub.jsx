@@ -23,8 +23,6 @@ import api from "../api/axios";
 import AppShell, { SidebarTrigger } from "../components/layout/AppShell";
 import Loader from "../components/common/Loader";
 import { useAuth } from "../context/AuthContext";
-import RkVerificationModal from "../components/modals/RkVerificationModal";
-import RkAdminModal from "../components/modals/RkAdminModal";
 import CustomImportModal from "../components/modals/CustomImportModal";
 
 const SUBJECT_ICONS = {
@@ -120,31 +118,8 @@ export default function Prephub() {
     return {};
   }, [canScrollLeft, canScrollRight]);
 
-  // RK Coaching verification modals state
-  const codeParam = searchParams.get("code") || searchParams.get("invite");
-  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(
-    () => Boolean(codeParam && !user?.isRkStudent)
-  );
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [initialPasskey] = useState(() => (codeParam ? codeParam.toUpperCase() : ""));
-  const [pendingCount, setPendingCount] = useState(0);
-
   const navigate = useNavigate();
-
-  // Fetch pending verification count if user is admin
-  useEffect(() => {
-    if (user?.role === "admin") {
-      api
-        .get("/prephub/admin/pending-verifications")
-        .then((res) => {
-          if (res.data.success) {
-            setPendingCount(res.data.requests?.length || 0);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [user?.role, isAdminModalOpen]);
 
   // 1. Fetch subjects overview (both Core CS & DSA roadmaps)
   useEffect(() => {
@@ -247,14 +222,8 @@ export default function Prephub() {
     setExpandedModuleId((prev) => (prev === modId ? null : modId));
   };
 
-  const isCurrentLocked = activeGroup === "rk" && !user?.isRkStudent;
 
   const handleOpenInStudio = async () => {
-    if (isCurrentLocked) {
-      toast.error("🔒 RK WORKSPACE curriculum is exclusive to RK Coaching Classes students.");
-      setIsVerificationModalOpen(true);
-      return;
-    }
     const sheetId = currentSubject?.sheetId || activeSubjectId;
     try {
       await api.post("/practice/enroll", { sheetId });
@@ -311,12 +280,8 @@ export default function Prephub() {
     }
   };
 
-  const handleTopicAction = (e) => {
-    if (isCurrentLocked) {
-      e.preventDefault();
-      toast.error("🔒 RK WORKSPACE lessons are exclusive to RK Coaching Classes students.");
-      setIsVerificationModalOpen(true);
-    }
+  const handleTopicAction = () => {
+    // Topic action handler
   };
 
   if (loading) {
@@ -424,48 +389,15 @@ export default function Prephub() {
                   }`}
               >
                 <GraduationCap className="w-3.5 h-3.5" />
-                <span>RK WORKSPACE</span>
-                {!user?.isRkStudent ? (
-                  user?.rkStatus === "pending" ? (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsVerificationModalOpen(true);
-                      }}
-                      className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-300 hover:bg-amber-500/25 transition cursor-pointer"
-                      title="Verification In Review (Click to view)"
-                    >
-                      <span className="animate-pulse text-[10px]">⏳</span>
-                      <span>{rkSubjects.length}</span>
-                    </span>
-                  ) : (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsVerificationModalOpen(true);
-                      }}
-                      className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full transition cursor-pointer ${activeGroup === "rk"
-                          ? "bg-black/25 text-white/90 border border-white/10 hover:border-white/20"
-                          : "bg-slate-200/90 dark:bg-neutral-900/80 border border-slate-300 dark:border-neutral-800 text-slate-600 dark:text-neutral-400 hover:border-slate-400 hover:text-slate-900 dark:hover:border-neutral-700 dark:hover:text-neutral-300"
-                        }`}
-                      title="Locked for RK Coaching students (Click to unlock)"
-                    >
-                      <Lock className="w-3 h-3 shrink-0" strokeWidth={1.8} />
-                      <span>{rkSubjects.length}</span>
-                    </span>
-                  )
-                ) : (
-                  <span
-                    className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${activeGroup === "rk"
-                        ? "bg-black/25 text-white border border-white/10"
-                        : "bg-slate-200/90 dark:bg-neutral-900/80 border border-slate-300 dark:border-neutral-800 text-slate-600 dark:text-neutral-400"
-                      }`}
-                    title="Verified RK Coaching Scholar (Unlocked)"
-                  >
-                    <span className="text-[10px]">🎓</span>
-                    <span>{rkSubjects.length}</span>
-                  </span>
-                )}
+                <span>SPECIAL TRACKS</span>
+                <span
+                  className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${activeGroup === "rk"
+                      ? "bg-black/25 text-white border border-white/10"
+                      : "bg-slate-200/90 dark:bg-neutral-900/80 border border-slate-300 dark:border-neutral-800 text-slate-600 dark:text-neutral-400"
+                    }`}
+                >
+                  <span>{rkSubjects.length}</span>
+                </span>
               </button>
             </div>
 
@@ -570,18 +502,7 @@ export default function Prephub() {
                     <Layers className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-500 group-hover:text-red-500 dark:group-hover:text-red-400/80 transition-colors" />
                     {sub.modulesCount} modules
                   </span>
-                  {sub.group === "rk" && !user?.isRkStudent ? (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsVerificationModalOpen(true);
-                      }}
-                      className="text-slate-400 hover:text-slate-700 dark:text-neutral-400 dark:hover:text-white transition-colors flex items-center cursor-pointer"
-                      title="Locked for RK Coaching students (Click to unlock)"
-                    >
-                      <Lock className="w-3.5 h-3.5" strokeWidth={1.8} />
-                    </span>
-                  ) : isActive ? (
+                  {isActive ? (
                     <span className="text-red-500 dark:text-red-400 font-semibold text-[11px] bg-red-500/10 px-2 py-0.5 rounded border border-red-500/25">
                       Active
                     </span>
@@ -616,7 +537,7 @@ export default function Prephub() {
                   ? "Comprehensive curriculum extracted directly from core computer science university & interview syllabi."
                   : activeGroup === "dsa"
                   ? "Curated problem roadmap mapped with solution approaches, complexities, and code templates."
-                  : "Classroom study materials, offline tests, and exclusive problem sets for RK Coaching Classes."}
+                  : "Curated special tracks, study materials, and structured topic roadmaps."}
               </p>
             </div>
 
@@ -655,8 +576,7 @@ export default function Prephub() {
                 onClick={handleOpenInStudio}
                 className="relative z-10 px-4 py-2 rounded-xl bg-gradient-to-r from-[#BA3C3C] to-[#E04D4D] hover:opacity-95 text-white text-xs font-semibold transition flex items-center gap-2 shrink-0 cursor-pointer shadow-lg shadow-red-500/25 self-start sm:self-auto"
               >
-                {isCurrentLocked && <Lock className="w-3.5 h-3.5" />}
-                <span>{isCurrentLocked ? "Unlock RK WORKSPACE to Practice" : "Add & Open in Studio"}</span>
+                <span>Add & Open in Studio</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -687,9 +607,7 @@ export default function Prephub() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-700 dark:bg-neutral-900 dark:text-neutral-300 border border-slate-300 dark:border-neutral-800 flex items-center gap-1.5">
-                          {isCurrentLocked && (
-                            <Lock className="w-3 h-3 text-slate-500 dark:text-neutral-400 shrink-0" strokeWidth={1.8} />
-                          )}
+
                           Module {idx + 1}
                         </span>
                         <h3 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-neutral-200">
@@ -698,18 +616,7 @@ export default function Prephub() {
                       </div>
 
                       <div className="flex items-center gap-3 text-slate-500 dark:text-neutral-400 text-xs">
-                        {isCurrentLocked && (
-                          <span
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsVerificationModalOpen(true);
-                            }}
-                            className="text-slate-400 hover:text-slate-700 dark:text-neutral-400 dark:hover:text-white transition-colors cursor-pointer"
-                            title="Locked for RK Coaching students (Click to unlock)"
-                          >
-                            <Lock className="w-3.5 h-3.5" strokeWidth={1.8} />
-                          </span>
-                        )}
+
                         <span className="text-[11px] font-mono">{itemsCount} topics</span>
                         {isExpanded ? (
                           <ChevronDown className="w-4 h-4 text-red-500 dark:text-red-400" />
@@ -756,13 +663,13 @@ export default function Prephub() {
                                   {judgeUrl && (
                                     <a
                                       href={judgeUrl}
-                                      target={!isCurrentLocked ? "_blank" : "_self"}
+                                      target="_blank"
                                       rel="noreferrer"
                                       onClick={handleTopicAction}
                                       className="text-slate-500 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400 transition flex items-center gap-1 text-[11px]"
-                                      title={!isCurrentLocked ? `Open problem on ${judgeName}` : "Locked for RK Coaching students"}
+                                      title={`Open problem on ${judgeName}`}
                                     >
-                                      {isCurrentLocked && <Lock className="w-2.5 h-2.5 text-slate-400 dark:text-neutral-400 shrink-0" strokeWidth={1.8} />}
+                                      
                                       <span>{judgeName}</span>
                                       <ExternalLink className="w-3 h-3" />
                                     </a>
@@ -772,13 +679,13 @@ export default function Prephub() {
                                   {item.tufHref && (
                                     <a
                                       href={item.tufHref}
-                                      target={!isCurrentLocked ? "_blank" : "_self"}
+                                      target="_blank"
                                       rel="noreferrer"
                                       onClick={handleTopicAction}
                                       className="text-slate-500 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400 transition flex items-center gap-1 text-[11px]"
-                                      title={!isCurrentLocked ? "Open on TUF" : "Locked for RK Coaching students"}
+                                      title="Open on TUF"
                                     >
-                                      {isCurrentLocked && <Lock className="w-2.5 h-2.5 text-slate-400 dark:text-neutral-400 shrink-0" strokeWidth={1.8} />}
+                                      
                                       <span>TUF</span>
                                       <ExternalLink className="w-3 h-3" />
                                     </a>
@@ -788,13 +695,13 @@ export default function Prephub() {
                                   {item.lessonUrl && (
                                     <a
                                       href={item.lessonUrl}
-                                      target={!isCurrentLocked ? "_blank" : "_self"}
+                                      target="_blank"
                                       rel="noreferrer"
                                       onClick={handleTopicAction}
                                       className="text-slate-500 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400 transition flex items-center gap-1 text-[11px]"
-                                      title={!isCurrentLocked ? "View lesson" : "Locked for RK Coaching students"}
+                                      title="View lesson"
                                     >
-                                      {isCurrentLocked && <Lock className="w-2.5 h-2.5 text-slate-400 dark:text-neutral-400 shrink-0" strokeWidth={1.8} />}
+                                      
                                       <span>View Lesson</span>
                                       <ExternalLink className="w-3 h-3" />
                                     </a>
@@ -820,32 +727,16 @@ export default function Prephub() {
                 <GraduationCap className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-semibold text-slate-800 dark:text-neutral-200">
-                {activeGroup === "rk" ? "RK Workspace Playlists & Courses" : "No Content Available"}
+                {activeGroup === "rk" ? "Special Tracks & Courses" : "No Content Available"}
               </h3>
               <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1.5 max-w-md mx-auto leading-relaxed">
                 {activeGroup === "rk"
-                  ? "YouTube playlists, classroom lectures, and learning roadmaps published by developer/admin will be displayed here."
+                  ? "Playlists, custom lectures, and learning roadmaps published by developer/admin will be displayed here."
                   : "No syllabus topics found for this selection."}
               </p>
             </div>
           )}
         </section>
-
-        {/* Verification Modal for Students */}
-        <RkVerificationModal
-          isOpen={isVerificationModalOpen}
-          onClose={() => setIsVerificationModalOpen(false)}
-          initialPasskey={initialPasskey}
-        />
-
-        {/* Admin Modal to Approve/Reject Requests */}
-        {user?.role === "admin" && (
-          <RkAdminModal
-            isOpen={isAdminModalOpen}
-            onClose={() => setIsAdminModalOpen(false)}
-            onUpdated={() => setPendingCount((p) => Math.max(0, p - 1))}
-          />
-        )}
 
         {/* Upload / Import Roadmap Modal */}
         <CustomImportModal

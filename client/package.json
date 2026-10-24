@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Modern YouTube playlist and course tracking application built with React and Tailwind CSS.",
-  "author": "StudyBuddy",
+  "author": "Anmol Kapoor",
   "license": "MIT",
   "type": "module",
   "engines": {

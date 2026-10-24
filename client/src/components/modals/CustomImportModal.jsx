@@ -89,7 +89,7 @@ export function CustomImportForm({
         selectedGroup === "core"
           ? "Core Computer Science"
           : selectedGroup === "rk"
-          ? "RK Coaching Classes"
+          ? "Special Tracks"
           : "DSA Patterns";
     }
 
@@ -327,7 +327,7 @@ export function CustomImportForm({
                   }`}
                 >
                   <GraduationCap className="w-3 h-3 text-red-400" />
-                  <span>RK Class</span>
+                  <span>Special</span>
                 </button>
               </div>
             </div>

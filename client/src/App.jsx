@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,16 +7,19 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import Home from "./pages/Home";
-import AuthPage from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import Practice from "./pages/Practice";
-import YouTubeHub from "./pages/YouTubeHub";
-import Prephub from "./pages/Prephub";
-import Settings from "./pages/Settings";
-import PlaylistDetails from "./pages/PlaylistDetails";
-import PlaylistPlayer from "./pages/PlaylistPlayer";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import { PageLoadingFallback } from "./components/common/SkeletonLoader";
+
+const Home = lazy(() => import("./pages/Home"));
+const AuthPage = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Practice = lazy(() => import("./pages/Practice"));
+const YouTubeHub = lazy(() => import("./pages/YouTubeHub"));
+const Prephub = lazy(() => import("./pages/Prephub"));
+const Settings = lazy(() => import("./pages/Settings"));
+const PlaylistDetails = lazy(() => import("./pages/PlaylistDetails"));
+const PlaylistPlayer = lazy(() => import("./pages/PlaylistPlayer"));
 
 const PROTECTED_ROUTES = [
   {
@@ -85,23 +88,27 @@ function PageRouteHandler() {
 
 export default function App() {
   return (
-    <Router>
-      <PageRouteHandler />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="/signup" element={<AuthPage />} />
+    <ErrorBoundary>
+      <Router>
+        <PageRouteHandler />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/signup" element={<AuthPage />} />
 
-        {PROTECTED_ROUTES.map(({ path, element }) => (
-          <Route
-            key={path}
-            path={path}
-            element={<ProtectedRoute>{element}</ProtectedRoute>}
-          />
-        ))}
+            {PROTECTED_ROUTES.map(({ path, element }) => (
+              <Route
+                key={path}
+                path={path}
+                element={<ProtectedRoute>{element}</ProtectedRoute>}
+              />
+            ))}
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </ErrorBoundary>
   );
 }

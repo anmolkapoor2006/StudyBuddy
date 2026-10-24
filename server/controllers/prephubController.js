@@ -173,12 +173,12 @@ exports.getOverview = async (req, res) => {
       const card = {
         id: gs.id,
         title: gs.title,
-        category: gs.category || (isRk ? "RK Coaching Classes" : isCore ? "Core Computer Science" : "DSA Patterns"),
+        category: gs.category || (isRk ? "Special Tracks" : isCore ? "Core Computer Science" : "DSA Patterns"),
         group: targetGroup,
         modulesCount: modSet.size || 1,
         topicsCount: (gs.problems || []).length,
-        description: gs.description || (isRk ? "Exclusive classroom materials for enrolled students." : "Official roadmap curated by Developer / Admin."),
-        badge: gs.badge || (isRk ? "Exclusive" : "Curated"),
+        description: gs.description || (isRk ? "Curated practice roadmaps and study materials." : "Official roadmap curated by Developer / Admin."),
+        badge: gs.badge || (isRk ? "Curated" : "Curated"),
         sheetId: gs.id,
         uploadedBy: gs.uploadedBy?.name || "Developer / Admin",
         isOfficial: Boolean(gs.isOfficial),
@@ -196,12 +196,12 @@ exports.getOverview = async (req, res) => {
       rkSubjects.push({
         id: "rk-classroom",
         title: "Classroom Notes & Assignments",
-        category: "RK Coaching Classes",
+        category: "Special Tracks",
         group: "rk",
         modulesCount: 0,
         topicsCount: 0,
-        description: "Exclusive classroom notes, mock test series, and offline lecture materials for enrolled students.",
-        badge: "Exclusive",
+        description: "Curated study notes, mock problem series, and lecture materials.",
+        badge: "Curated",
         uploadedBy: "Developer / Admin",
         isOfficial: true,
       });
@@ -408,7 +408,7 @@ exports.getSubjectDetails = async (req, res) => {
       });
     }
 
-    // 5. RK Coaching Modules
+    // 5. Special Track Modules
     if (lowerId === "rk-classroom") {
       return res.json({
         success: true,
@@ -468,7 +468,7 @@ exports.verifyPasskey = async (req, res) => {
     if (passkey.trim().toLowerCase() !== expectedPasskey) {
       return res.status(401).json({
         success: false,
-        message: "Invalid RK Coaching Classes passkey. Please check with your instructor.",
+        message: "Invalid passkey. Please check with your administrator.",
       });
     }
 
@@ -480,13 +480,13 @@ exports.verifyPasskey = async (req, res) => {
     user.isRkStudent = true;
     user.rkStatus = "approved";
     if (!user.badge || user.badge === "Basic User") {
-      user.badge = "RK Coaching Scholar";
+      user.badge = "Scholar";
     }
     await user.save();
 
     return res.json({
       success: true,
-      message: "Access granted! Welcome RK Coaching Classes student 🎉",
+      message: "Access granted! Welcome 🎉",
       user: userResponse(user),
     });
   } catch (error) {

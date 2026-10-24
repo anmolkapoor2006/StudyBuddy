@@ -26,9 +26,6 @@ export default function AuthPage() {
   const [popupBlockedNotice, setPopupBlockedNotice] = useState(false);
   const [reloadCountdown, setReloadCountdown] = useState(null);
 
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-
   // Smooth UI transition delay
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -61,86 +58,6 @@ export default function AuthPage() {
       navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, navigate]);
-
-  // Real-time canvas processing to remove pure white background and ground studio shadow
-  useEffect(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-
-    let animId;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    canvas.width = 480;
-    canvas.height = 480;
-
-    video.muted = true;
-    video.playsInline = true;
-
-    // Instant poster fallback so canvas is populated while video initializes
-    const poster = new Image();
-    poster.src = "/assets/mascot_transparent.webp";
-    poster.onload = () => {
-      if (video.readyState < 2) {
-        ctx.drawImage(poster, 0, 0, 480, 480);
-      }
-    };
-
-    const playVideo = () => {
-      video.play().catch(() => {});
-    };
-
-    video.addEventListener("canplay", playVideo);
-    video.addEventListener("loadeddata", playVideo);
-    playVideo();
-
-    const processFrame = () => {
-      if (video.readyState >= 2 && !video.paused && !video.ended) {
-        const w = 480;
-        const h = 480;
-
-        ctx.drawImage(video, 0, 0, w, h);
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-
-        for (let y = 0; y < h; y++) {
-          const rowOffset = y * w * 4;
-          const isFloorArea = y > 0.78 * h;
-          const isUnderSole = y >= 0.93 * h;
-
-          for (let x = 0; x < w; x++) {
-            const i = rowOffset + x * 4;
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const minVal = r < g ? (r < b ? r : b) : g < b ? g : b;
-
-            // 1. Key out pure white background (preserves off-white cap & pants at ~220-234)
-            if (minVal > 244) {
-              data[i + 3] = 0;
-            } else if (minVal > 234 && !isFloorArea) {
-              data[i + 3] = Math.round(((244 - minVal) / 10) * 255);
-            } else if (isFloorArea) {
-              // 2. Key out studio floor shadow (which appears as a bright white disk on dark bg)
-              const isLateralShadow = (x < 0.33 * w || x > 0.68 * w) && minVal > 165;
-              if (isUnderSole || isLateralShadow || minVal > 234) {
-                data[i + 3] = 0;
-              }
-            }
-          }
-        }
-        ctx.putImageData(imgData, 0, 0);
-      }
-      animId = requestAnimationFrame(processFrame);
-    };
-
-    animId = requestAnimationFrame(processFrame);
-
-    return () => {
-      video.removeEventListener("canplay", playVideo);
-      video.removeEventListener("loadeddata", playVideo);
-      if (animId) cancelAnimationFrame(animId);
-    };
-  }, []);
 
   // Detect when user clicks Google iframe (window loses focus while hovering)
   useEffect(() => {
@@ -383,41 +300,9 @@ export default function AuthPage() {
             <span className="text-neutral-400 font-['Courier_Prime',monospace] font-bold text-[10px] sm:text-[11px] tracking-wider leading-tight mt-0.5">
               Code • Study • Track
             </span>
-            <span className="text-[#E04D4D] font-['Courier_Prime',monospace] font-bold text-[10px] sm:text-[11px] tracking-wider leading-tight mt-0.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E04D4D] inline-block animate-pulse shrink-0" />
-              Powered by RK Coaching Classes
-            </span>
           </div>
         </a>
       </header>
-
-      {/* CENTER VIDEO PLAYING WITH REAL-TIME TRANSPARENT CANVAS ON OUR DARK BG */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="relative w-[100vw] h-[60vh] sm:w-[70vw] sm:h-[70vh] md:w-[62vw] md:h-[78vh] flex items-center justify-center">
-          {/* Hidden Source Video */}
-          <video
-            ref={videoRef}
-            src="/assets/mascot_video.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            crossOrigin="anonymous"
-            className="hidden"
-            onLoadedData={() => videoRef.current?.play().catch(() => {})}
-            onCanPlay={() => videoRef.current?.play().catch(() => {})}
-          />
-
-          {/* Real-time Keyed Canvas (Zero white box, 100% solid cap & pants) */}
-          <canvas
-            ref={canvasRef}
-            width={480}
-            height={480}
-            className="w-full h-full object-contain pointer-events-none relative z-10 drop-shadow-[0_12px_45px_rgba(0,0,0,0.85)]"
-          />
-        </div>
-      </div>
 
       {/* FULLSCREEN GOOGLE AUTH REFERRAL & REDIRECT OVERLAY */}
       {referralState && (

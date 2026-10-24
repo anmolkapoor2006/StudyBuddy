@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "StudyBuddy - Modern YouTube Playlist & Course Tracker",
+  "author": "Anmol Kapoor",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",

@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "author": "StudyBuddy",
+  "author": "Anmol Kapoor",
   "license": "MIT",
   "keywords": [],
   "dependencies": {

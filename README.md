@@ -185,7 +185,7 @@ StudyBuddy/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Shagarwal07/StudyBuddy.git
+git clone https://github.com/anmolkapoor2006/StudyBuddy.git
 cd StudyBuddy
 ```
 
@@ -239,7 +239,7 @@ Open **`http://localhost:5173`** in your browser!
 StudyBuddy is optimized for **Cloudflare Pages** with native Single Page Application (SPA) routing:
 
 1. In Cloudflare Dashboard, go to **Workers & Pages** ➔ **Create application** ➔ **Pages** ➔ **Connect to Git**.
-2. Select repository: `Shagarwal07/StudyBuddy`.
+2. Select repository: `anmolkapoor2006/StudyBuddy`.
 3. Configure build settings:
    * **Framework preset**: `Vite`
    * **Root directory**: `client`
@@ -251,6 +251,6 @@ StudyBuddy is optimized for **Cloudflare Pages** with native Single Page Applica
 
 ---
 
-## 📜 License
+## 📜 License & Author
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Developed by **Anmol Kapoor**. Distributed under the **MIT License**.

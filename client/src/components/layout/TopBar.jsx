@@ -126,7 +126,7 @@ export default function TopBar({ title, showBack = false, onMenuClick }) {
     if (path.startsWith("/dashboard")) return "Dashboard";
     if (path.startsWith("/practice")) return "Practice Studio";
     if (path.startsWith("/youtube")) return "Ad - free Video";
-    if (path.startsWith("/prephub")) return "RK Workspace";
+    if (path.startsWith("/prephub")) return "Core Workspace";
     if (path.startsWith("/settings")) return "Settings";
     return "";
   };

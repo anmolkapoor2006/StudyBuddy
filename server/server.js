@@ -69,7 +69,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "http://localhost:5000",
-  "https://studybuddy.rk-coachings20.workers.dev",
+  "http://localhost:5001",
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
@@ -84,6 +84,11 @@ app.use(
 
       // Cloudflare workers & pages domains (*.workers.dev, *.pages.dev)
       if (/^https:\/\/.*?\.(workers|pages)\.dev$/i.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Vercel deployment domains (*.vercel.app)
+      if (/^https:\/\/.*?\.vercel\.app$/i.test(origin)) {
         return callback(null, true);
       }
 
@@ -134,13 +139,18 @@ app.use("/api/prephub", prephubRoutes);
 // app.use("/api/ai", aiRoutes); // Added in Commit 3
 app.use("/api", noteRoutes);
 
+const errorHandler = require("./middleware/errorHandler");
+
 // Fallback 404 handler
-app.use((req, res) => {
+app.use((req, res, next) => {
   res.status(404).json({
     success: false,
     message: "Route not found",
   });
 });
+
+// Centralized error handler
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

@@ -226,9 +226,9 @@ export default function Dashboard() {
               <Cutout
                 variant="btn"
                 as="button"
-                onClick={() => navigate("/prephub?group=rk")}
+                onClick={() => navigate("/prephub")}
                 innerClassName="px-4 py-2.5 bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] text-xs sm:text-sm font-medium text-[var(--bone)] flex items-center gap-2 cursor-pointer group"
-                title="Open RK Workspace"
+                title="Explore Roadmaps"
               >
                 <Play className="w-3.5 h-3.5 text-[var(--crimson-hover)] fill-[var(--crimson-hover)]/30" />
                 <span>Start Learning</span>
@@ -237,9 +237,9 @@ export default function Dashboard() {
             ) : (
               <button
                 type="button"
-                onClick={() => navigate("/prephub?group=rk")}
+                onClick={() => navigate("/prephub")}
                 className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 text-xs sm:text-sm font-medium text-slate-800 dark:text-neutral-200 transition flex items-center gap-2 cursor-pointer shadow-xs group"
-                title="Open RK Workspace"
+                title="Explore Roadmaps"
               >
                 <Play className="w-3.5 h-3.5 text-red-500 fill-red-500/30" />
                 <span>Start Learning</span>
