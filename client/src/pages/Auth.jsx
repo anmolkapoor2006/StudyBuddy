@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, AlertTriangle, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertTriangle, RefreshCw, Sparkles, Mail, KeyRound, X, ArrowRight } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -23,8 +23,12 @@ export default function AuthPage() {
   const [isOpeningGoogle, setIsOpeningGoogle] = useState(false);
   const [referralState, setReferralState] = useState(null); // null | 'verifying' | 'success'
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
-  const [popupBlockedNotice, setPopupBlockedNotice] = useState(false);
-  const [reloadCountdown, setReloadCountdown] = useState(null);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [showClientIdModal, setShowClientIdModal] = useState(false);
+  const [customClientIdInput, setCustomClientIdInput] = useState(
+    () => localStorage.getItem("studybuddy_google_client_id") || ""
+  );
 
   // Smooth UI transition delay
   useEffect(() => {
@@ -59,107 +63,83 @@ export default function AuthPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  // Detect when user clicks Google iframe (window loses focus while hovering)
-  useEffect(() => {
-    let focusTimer;
-    const onWindowBlur = () => {
-      if (isHoveringBtn) {
-        setIsOpeningGoogle(true);
-      }
-    };
+  const getGoogleClientId = () => {
+    return (
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      customClientIdInput ||
+      localStorage.getItem("studybuddy_google_client_id") ||
+      ""
+    ).trim();
+  };
 
-    const onWindowFocus = () => {
-      // If user comes back to window and referral hasn't started, cleanly reset
-      focusTimer = setTimeout(() => {
-        if (!referralState) {
-          setIsOpeningGoogle(false);
-          setPopupBlockedNotice(false);
-          setReloadCountdown(null);
+  const handleGoogleResponse = useCallback(
+    async (response) => {
+      try {
+        setLoading(true);
+        setIsOpeningGoogle(false);
+        setReferralState("verifying");
+        setError("");
+
+        const res = await api.post("/auth/google", { credential: response.credential });
+        if (res.data?.success) {
+          setAuthenticatedUser(res.data.user);
+          setReferralState("success");
+          login(res.data.token, res.data.user);
+
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 800);
+        } else {
+          setReferralState(null);
+          setError("Unable to authenticate with Google. Please try again.");
         }
-      }, 3500);
-    };
-
-    window.addEventListener("blur", onWindowBlur);
-    window.addEventListener("focus", onWindowFocus);
-    return () => {
-      clearTimeout(focusTimer);
-      window.removeEventListener("blur", onWindowBlur);
-      window.removeEventListener("focus", onWindowFocus);
-    };
-  }, [isHoveringBtn, referralState]);
-
-  // Failsafe timer: If Google login is initiated but stuck (e.g. popup blocked by browser/adblocker),
-  // warn the user and automatically reload after enough time to reset the UI.
-  useEffect(() => {
-    if (!isOpeningGoogle || referralState) {
-      setPopupBlockedNotice(false);
-      setReloadCountdown(null);
-      return;
-    }
-
-    // After 8 seconds of no response, show blocked popup warning and begin reload countdown
-    const noticeTimer = setTimeout(() => {
-      setPopupBlockedNotice(true);
-      setReloadCountdown(6);
-    }, 8000);
-
-    return () => {
-      clearTimeout(noticeTimer);
-    };
-  }, [isOpeningGoogle, referralState]);
-
-  // Handle auto-reload countdown
-  useEffect(() => {
-    if (reloadCountdown === null) return;
-    if (reloadCountdown <= 0) {
-      window.location.reload();
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setReloadCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [reloadCountdown]);
-
-  const handleGoogleResponse = useCallback(async (response) => {
-    try {
-      setLoading(true);
-      setIsOpeningGoogle(false);
-      setReferralState("verifying");
-      setError("");
-
-      const res = await api.post("/auth/google", { credential: response.credential });
-      if (res.data?.success) {
-        setAuthenticatedUser(res.data.user);
-        setReferralState("success");
-        login(res.data.token, res.data.user);
-
-        // Aesthetic referral handoff delay
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 800);
-      } else {
+      } catch (err) {
         setReferralState(null);
-        setError("Unable to authenticate with Google. Please try again.");
+        setError(err.response?.data?.message || "Google authentication failed. Please try again.");
+      } finally {
+        setLoading(false);
+        setIsOpeningGoogle(false);
       }
-    } catch (err) {
-      setReferralState(null);
-      setError(err.response?.data?.message || "Google authentication failed. Please try again.");
-    } finally {
-      setLoading(false);
-      setIsOpeningGoogle(false);
-    }
-  }, [login, navigate]);
+    },
+    [login, navigate]
+  );
 
   const handleGoogleClick = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const clientId = getGoogleClientId();
     if (!clientId) {
-      setError("Google Client ID is missing in client/.env.");
+      setShowClientIdModal(true);
       return;
     }
-    if (window.google?.accounts?.id) {
+
+    if (window.google?.accounts?.oauth2) {
+      setIsOpeningGoogle(true);
+      setLoading(true);
+      setError("");
+
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "email profile openid",
+        callback: async (tokenResponse) => {
+          if (tokenResponse.error) {
+            setError(`Google authorization error: ${tokenResponse.error}`);
+            setLoading(false);
+            setIsOpeningGoogle(false);
+            return;
+          }
+          if (tokenResponse.access_token) {
+            await handleGoogleResponse({ credential: tokenResponse.access_token });
+          }
+        },
+        error_callback: (err) => {
+          console.error("Google Token Client error:", err);
+          setError("Google sign-in popup was closed or blocked. Please allow popups and try again.");
+          setLoading(false);
+          setIsOpeningGoogle(false);
+        },
+      });
+
+      client.requestAccessToken();
+    } else if (window.google?.accounts?.id) {
       setIsOpeningGoogle(true);
       setLoading(true);
       window.google.accounts.id.prompt((notification) => {
@@ -174,16 +154,85 @@ export default function AuthPage() {
         }
       });
     } else {
-      setError("Google Identity Services failed to load. Check your internet connection.");
+      setError("Google Identity Services is loading. Please check your connection and try again.");
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      setReferralState("verifying");
+
+      const res = await api.post("/auth/guest");
+      if (res.data?.success) {
+        setAuthenticatedUser(res.data.user);
+        setReferralState("success");
+        login(res.data.token, res.data.user);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 800);
+      } else {
+        setReferralState(null);
+        setError("Unable to initialize guest session.");
+      }
+    } catch (err) {
+      setReferralState(null);
+      setError(err.response?.data?.message || "Failed to sign in as guest.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEmailLogin = async (e) => {
+    e?.preventDefault();
+    if (!emailInput || !emailInput.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    try {
+      setLoading(true);
+      setError("");
+      setReferralState("verifying");
+
+      const res = await api.post("/auth/email", { email: emailInput });
+      if (res.data?.success) {
+        setAuthenticatedUser(res.data.user);
+        setReferralState("success");
+        login(res.data.token, res.data.user);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 800);
+      } else {
+        setReferralState(null);
+        setError("Unable to authenticate with email.");
+      }
+    } catch (err) {
+      setReferralState(null);
+      setError(err.response?.data?.message || "Email authentication failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveCustomClientId = (e) => {
+    e?.preventDefault();
+    const cleanId = customClientIdInput.trim();
+    if (cleanId) {
+      localStorage.setItem("studybuddy_google_client_id", cleanId);
+      setShowClientIdModal(false);
+      setError("");
+      setTimeout(() => {
+        handleGoogleClick();
+      }, 100);
     }
   };
 
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId) return;
+    const clientId = getGoogleClientId();
 
     const initGsi = () => {
-      if (!window.google?.accounts?.id) return;
+      if (!window.google?.accounts?.id || !clientId) return;
       try {
         window.google.accounts.id.initialize({
           client_id: clientId,
@@ -218,7 +267,7 @@ export default function AuthPage() {
       script.onload = initGsi;
       document.body.appendChild(script);
     }
-  }, [handleGoogleResponse]);
+  }, [handleGoogleResponse, customClientIdInput]);
 
   return (
     <div
@@ -380,9 +429,9 @@ export default function AuthPage() {
       )}
 
       {/* BOTTOM ACTION */}
-      <div className="relative z-30 pb-8 sm:pb-12 pt-4 px-6 flex flex-col items-center mt-auto">
+      <div className="relative z-30 pb-8 sm:pb-12 pt-4 px-6 flex flex-col items-center mt-auto w-full max-w-md mx-auto">
         <div
-          className="relative w-[90%] sm:w-auto min-w-[280px]"
+          className="relative w-full"
           onMouseEnter={() => setIsHoveringBtn(true)}
           onMouseLeave={() => setIsHoveringBtn(false)}
         >
@@ -396,14 +445,14 @@ export default function AuthPage() {
             type="button"
             onClick={handleGoogleClick}
             disabled={loading || isOpeningGoogle}
-            className={`w-full bg-[#120E1E] text-white hover:bg-[#1A142A] border-[1.5px] border-[#E04D4D] py-4 sm:py-5 px-8 rounded-none font-bold text-sm sm:text-base font-['Courier_Prime',monospace] tracking-widest uppercase shadow-[5px_5px_0_#E04D4D] transition-all duration-300 flex items-center justify-center gap-4 hover:-translate-y-1 active:translate-y-0 disabled:opacity-85 disabled:hover:translate-y-0 cursor-pointer relative z-10 ${
+            className={`w-full bg-[#120E1E] text-white hover:bg-[#1A142A] border-[1.5px] border-[#E04D4D] py-3.5 sm:py-4 px-6 rounded-xl font-bold text-sm font-['Courier_Prime',monospace] tracking-wider uppercase shadow-[0_4px_20px_rgba(224,77,77,0.25)] transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-85 cursor-pointer relative z-10 ${
               isOpeningGoogle ? "border-red-400 shadow-[0_0_24px_rgba(224,77,77,0.45)]" : ""
             }`}
           >
             {loading || isOpeningGoogle ? (
-              <div className="w-7 h-7 sm:w-8 sm:h-8 border-4 border-[#A2382B] border-t-transparent rounded-full animate-spin shrink-0" />
+              <div className="w-5 h-5 border-2 border-[#A2382B] border-t-transparent rounded-full animate-spin shrink-0" />
             ) : (
-              <svg className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
@@ -432,44 +481,143 @@ export default function AuthPage() {
           </button>
         </div>
 
+        {/* Alternative Auth Divider */}
+        <div className="w-full flex items-center gap-3 my-4">
+          <div className="h-[1px] bg-neutral-800/80 flex-1" />
+          <span className="text-[10px] font-mono uppercase text-neutral-500 tracking-wider">or fast access</span>
+          <div className="h-[1px] bg-neutral-800/80 flex-1" />
+        </div>
+
+        {/* Fast Action Buttons: Guest / Email */}
+        <div className="w-full grid grid-cols-2 gap-2.5">
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            disabled={loading}
+            className="w-full py-2.5 px-3 rounded-lg bg-neutral-900/80 hover:bg-neutral-850 border border-neutral-800 hover:border-red-500/40 text-xs font-medium text-neutral-300 hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50"
+            title="Instant access as guest developer (no setup required)"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Guest Demo</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowEmailForm((prev) => !prev)}
+            disabled={loading}
+            className="w-full py-2.5 px-3 rounded-lg bg-neutral-900/80 hover:bg-neutral-850 border border-neutral-800 hover:border-neutral-700 text-xs font-medium text-neutral-300 hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50"
+          >
+            <Mail className="w-3.5 h-3.5 text-neutral-400" />
+            <span>{showEmailForm ? "Hide Email" : "Use Email"}</span>
+          </button>
+        </div>
+
+        {/* Optional Inline Email Login Form */}
+        {showEmailForm && (
+          <form
+            onSubmit={handleEmailLogin}
+            className="w-full mt-3 p-3.5 rounded-xl bg-neutral-950/80 border border-neutral-800/90 flex flex-col gap-2.5 animate-in fade-in duration-200"
+          >
+            <label className="text-[11px] font-mono text-neutral-400 text-left">Developer Email</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="you@domain.com"
+                required
+                className="flex-1 bg-black/60 border border-neutral-800 focus:border-red-500/60 rounded-lg px-3 py-1.5 text-xs text-white placeholder-neutral-600 outline-none transition"
+              />
+              <button
+                type="submit"
+                disabled={loading || !emailInput}
+                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#BA3C3C] to-[#E04D4D] hover:opacity-90 text-white text-xs font-semibold flex items-center gap-1 transition cursor-pointer disabled:opacity-50"
+              >
+                <span>Continue</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </form>
+        )}
+
         {/* Live status feedback when Google popup is open */}
         {isOpeningGoogle && !referralState && (
-          <div className="mt-3 flex flex-col items-center gap-2 max-w-sm w-full">
-            <div className="flex items-center gap-2 text-[11px] font-['Courier_Prime',monospace] text-red-400 animate-pulse bg-red-500/10 border border-red-500/25 px-3 py-1.5 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0" />
-              <span>Google authentication in progress... Choose your account</span>
-            </div>
-
-            {popupBlockedNotice && (
-              <div className="w-full p-3 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-['Courier_Prime',monospace] text-center flex flex-col items-center gap-2 animate-in fade-in duration-300">
-                <div className="flex items-center gap-1.5 text-amber-400 font-bold">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
-                  <span>Popup may be blocked by browser</span>
-                </div>
-                <p className="text-[11px] text-amber-200/80 leading-relaxed">
-                  If the sign-in window didn't appear, check your popup blocker settings.
-                </p>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-[10px] text-amber-400/90 font-mono">
-                    Auto-reloading in {reloadCountdown ?? 0}s...
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => window.location.reload()}
-                    className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-[10px] font-bold text-amber-200 flex items-center gap-1.5 cursor-pointer transition-colors"
-                  >
-                    <RefreshCw className="w-3 h-3 animate-spin" />
-                    <span>Reload Now</span>
-                  </button>
-                </div>
-              </div>
-            )}
+          <div className="mt-3 flex items-center gap-2 text-[11px] font-mono text-red-400 animate-pulse bg-red-500/10 border border-red-500/25 px-3 py-1.5 rounded-lg">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0" />
+            <span>Google authorization popup active...</span>
           </div>
         )}
 
+        {/* Error message */}
         {error && (
-          <div className="mt-4 p-3 rounded-none bg-red-500/10 border border-[#E04D4D] text-[#E04D4D] text-xs font-['Courier_Prime',monospace] text-center max-w-md shadow-md">
-            {error}
+          <div className="mt-3.5 p-3 rounded-lg bg-red-500/10 border border-[#E04D4D] text-[#E04D4D] text-xs font-mono text-center w-full shadow-md flex items-center justify-between gap-2">
+            <span className="flex-1">{error}</span>
+            <button
+              type="button"
+              onClick={() => setError("")}
+              className="text-red-400 hover:text-white p-0.5 cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        {/* Client ID Configuration Modal / Setup Option */}
+        {showClientIdModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-[#120E1E] border border-neutral-800 rounded-2xl p-5 sm:p-6 max-w-md w-full shadow-2xl relative text-left">
+              <button
+                type="button"
+                onClick={() => setShowClientIdModal(false)}
+                className="absolute top-4 right-4 text-neutral-400 hover:text-white p-1 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-white font-['Fraunces',serif]">Configure Google OAuth</h3>
+              </div>
+
+              <p className="text-xs text-neutral-400 leading-relaxed mb-4">
+                To sign in with your official Google account, enter your Google OAuth 2.0 Web Client ID from Google Cloud Console.
+              </p>
+
+              <form onSubmit={handleSaveCustomClientId} className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-mono text-neutral-400 block mb-1">Google Client ID</label>
+                  <input
+                    type="text"
+                    value={customClientIdInput}
+                    onChange={(e) => setCustomClientIdInput(e.target.value)}
+                    placeholder="xxxxxxxxxxxx-xxxxxxxxxxxxxxxx.apps.googleusercontent.com"
+                    className="w-full bg-black/50 border border-neutral-800 focus:border-red-500/60 rounded-lg p-2.5 text-xs text-white font-mono placeholder-neutral-600 outline-none"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowClientIdModal(false);
+                      handleGuestLogin();
+                    }}
+                    className="px-3 py-2 rounded-lg text-xs text-neutral-400 hover:text-white transition cursor-pointer"
+                  >
+                    Skip & Use Guest Mode
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#BA3C3C] to-[#E04D4D] text-white text-xs font-semibold shadow-md cursor-pointer hover:opacity-90 transition"
+                  >
+                    Save & Sign In
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
@@ -477,19 +625,10 @@ export default function AuthPage() {
           type="button"
           onClick={handleReturnHome}
           disabled={isNavigatingHome}
-          className="mt-8 text-neutral-400 font-['Courier_Prime',monospace] text-[12px] tracking-[0.06em] font-bold border-b-[1.5px] border-neutral-700 pb-[2px] hover:text-[#E04D4D] hover:border-[#E04D4D] active:scale-95 transition-all flex items-center gap-2 group cursor-pointer disabled:opacity-60"
+          className="mt-6 text-neutral-400 font-mono text-[11px] tracking-wider hover:text-white active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
         >
-          <svg
-            className={`w-4 h-4 transition-transform duration-200 ${
-              isNavigatingHome ? "-translate-x-1 text-[#E04D4D]" : "group-hover:-translate-x-1"
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          <span>{isNavigatingHome ? "Returning to home..." : "Return to home"}</span>
+          <ArrowRight className="w-3.5 h-3.5 rotate-180 text-neutral-500" />
+          <span>{isNavigatingHome ? "Returning to home..." : "Return to Home"}</span>
         </button>
       </div>
     </div>
