@@ -10,12 +10,9 @@ import {
   BookOpen,
   ShieldCheck,
   Compass,
-  GraduationCap,
   Heart,
-  ExternalLink,
   ChevronDown,
   HelpCircle,
-  Star,
   Sun,
   Moon,
   Download,
@@ -302,14 +299,7 @@ export default function Home() {
   const [isGuideExpanded, setIsGuideExpanded] = useState(false);
   const [copiedExtensionUrl, setCopiedExtensionUrl] = useState(false);
 
-  const billuExtensionQuotes = useMemo(
-    () => ({
-      hud: "Solved Trapping Rain Water on LeetCode? Boom! I celebrate right on your screen and auto-mark it in your roadmaps!",
-      popup: "Keep tabs on your daily flame streak, today's solved count, and roadmap targets right from your browser toolbar!",
-      backfill: "Already solved hundreds of questions on LeetCode or Codeforces? Use Option B to pull your entire history in one click!",
-    }),
-    []
-  );
+
 
   const EXTENSION_FEATURES = useMemo(
     () => [

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 /**
  * useCanvasLoop: Shared canvas lifecycle hook.
@@ -222,5 +222,5 @@ export function useCanvasLoop({
     };
   }, [canvasRef, onFrame, onResize, animated]);
 
-  return { dimensions: dimensionsRef.current };
+  return { dimensionsRef };
 }

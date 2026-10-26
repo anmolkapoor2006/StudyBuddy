@@ -11,7 +11,6 @@ import Heatmap from "../components/playlist/Heatmap";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import Cutout from "../components/web/Cutout";
-import HeroWeb from "../components/web/HeroWeb";
 import StrandDivider from "../components/web/StrandDivider";
 import AnimatedStatNumber from "../components/web/AnimatedStatNumber";
 
@@ -66,7 +65,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setStreak]);
 
   useEffect(() => {
     fetchData();

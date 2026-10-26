@@ -67,7 +67,7 @@ const isPracticeJudgeUrl = (url = "") => {
 
 const isInstructorResourceUrl = (url = "") => {
   if (!url) return false;
-  return /drive\.google\.com|docs\.google\.com|youtube\.com|youtu\.be|github\.com|notion\.so|notion\.site|loom\.com|medium\.com|dropbox\.com|pastebin\.com|hastebin\.com|ghostbin\.com|rentry\.co|rkcoaching/i.test(url);
+  return /drive\.google\.com|docs\.google\.com|youtube\.com|youtu\.be|github\.com|notion\.so|notion\.site|loom\.com|medium\.com|dropbox\.com|pastebin\.com|hastebin\.com|ghostbin\.com|rentry\.co/i.test(url);
 };
 
 function cleanProblemTitle(rawTitle) {
@@ -423,44 +423,85 @@ loadData();
 
 function getFallbackSheet(sheetId) {
   loadData();
-  if (sheetId === "strivers-180" && tuf180Data?.modules) {
+  if (sheetId === "strivers-180") {
     const problems = [];
-    tuf180Data.modules.forEach((m) =>
-      (m.items || []).forEach((it) => {
+    if (tuf180Data?.modules) {
+      tuf180Data.modules.forEach((m) =>
+        (m.items || []).forEach((it) => {
+          problems.push({
+            ...it,
+            module: m.moduleTitle,
+            platform: Boolean(it.leetcodeSlug || it.leetcodeUrl) ? "LeetCode" : "takeUforward",
+            platformUrl: it.leetcodeUrl || it.tufHref || `https://leetcode.com/problem-list/all/?search=${encodeURIComponent(it.title)}`,
+          });
+        })
+      );
+    } else {
+      const defaultDsa = [
+        { id: 1, title: "Two Sum", leetcodeSlug: "two-sum", leetcodeId: 1, leetcodeDifficulty: "Easy", module: "Arrays" },
+        { id: 2, title: "Best Time to Buy and Sell Stock", leetcodeSlug: "best-time-to-buy-and-sell-stock", leetcodeId: 121, leetcodeDifficulty: "Easy", module: "Arrays" },
+        { id: 3, title: "Maximum Subarray (Kadane's)", leetcodeSlug: "maximum-subarray", leetcodeId: 53, leetcodeDifficulty: "Medium", module: "Arrays" },
+        { id: 4, title: "Merge Intervals", leetcodeSlug: "merge-intervals", leetcodeId: 56, leetcodeDifficulty: "Medium", module: "Arrays" },
+        { id: 5, title: "3Sum", leetcodeSlug: "3sum", leetcodeId: 15, leetcodeDifficulty: "Medium", module: "Two Pointers" },
+        { id: 6, title: "Trapping Rain Water", leetcodeSlug: "trapping-rain-water", leetcodeId: 42, leetcodeDifficulty: "Hard", module: "Two Pointers" },
+        { id: 7, title: "Reverse Linked List", leetcodeSlug: "reverse-linked-list", leetcodeId: 206, leetcodeDifficulty: "Easy", module: "Linked List" },
+        { id: 8, title: "LRU Cache", leetcodeSlug: "lru-cache", leetcodeId: 146, leetcodeDifficulty: "Medium", module: "Linked List" },
+        { id: 9, title: "Valid Parentheses", leetcodeSlug: "valid-parentheses", leetcodeId: 20, leetcodeDifficulty: "Easy", module: "Stack & Queue" },
+        { id: 10, title: "Binary Tree Level Order Traversal", leetcodeSlug: "binary-tree-level-order-traversal", leetcodeId: 102, leetcodeDifficulty: "Medium", module: "Binary Trees" },
+      ];
+      defaultDsa.forEach((it) =>
         problems.push({
           ...it,
-          module: m.moduleTitle,
-          platform: Boolean(it.leetcodeSlug || it.leetcodeUrl) ? "LeetCode" : "takeUforward",
-          platformUrl: it.leetcodeUrl || it.tufHref || `https://leetcode.com/problem-list/all/?search=${encodeURIComponent(it.title)}`,
-        });
-      })
-    );
+          platform: "LeetCode",
+          platformUrl: `https://leetcode.com/problems/${it.leetcodeSlug}/`,
+        })
+      );
+    }
     return {
       id: "strivers-180",
       title: "SDE 180 Master Sheet",
-      description: "33 modules covering all core interview DSA patterns mapped directly to LeetCode.",
+      description: "Core interview DSA patterns mapped directly to LeetCode.",
       category: "DSA Patterns",
       isOfficial: true,
       badge: "Developer / Admin",
       problems,
     };
   }
-  if (sheetId === "sql-75" && sql75Data?.modules) {
+
+  if (sheetId === "sql-75") {
     const problems = [];
-    sql75Data.modules.forEach((m) =>
-      (m.items || []).forEach((it) => {
+    if (sql75Data?.modules) {
+      sql75Data.modules.forEach((m) =>
+        (m.items || []).forEach((it) => {
+          problems.push({
+            ...it,
+            module: m.moduleTitle,
+            platform: "SQL Hub",
+            platformUrl: it.tufHref || `https://takeuforward.org/practice/sql/${it.id}`,
+          });
+        })
+      );
+    } else {
+      const defaultSql = [
+        { id: 175, title: "Combine Two Tables", leetcodeSlug: "combine-two-tables", leetcodeDifficulty: "Easy", module: "Select & Joins" },
+        { id: 181, title: "Employees Earning More Than Their Managers", leetcodeSlug: "employees-earning-more-than-their-managers", leetcodeDifficulty: "Easy", module: "Select & Joins" },
+        { id: 182, title: "Duplicate Emails", leetcodeSlug: "duplicate-emails", leetcodeDifficulty: "Easy", module: "Select & Joins" },
+        { id: 184, title: "Department Highest Salary", leetcodeSlug: "department-highest-salary", leetcodeDifficulty: "Medium", module: "Aggregations & Grouping" },
+        { id: 176, title: "Second Highest Salary", leetcodeSlug: "second-highest-salary", leetcodeDifficulty: "Medium", module: "Window Functions" },
+        { id: 178, title: "Rank Scores", leetcodeSlug: "rank-scores", leetcodeDifficulty: "Medium", module: "Window Functions" },
+      ];
+      defaultSql.forEach((it) =>
         problems.push({
           ...it,
-          module: m.moduleTitle,
-          platform: "SQL Hub",
-          platformUrl: it.tufHref || `https://takeuforward.org/practice/sql/${it.id}`,
-        });
-      })
-    );
+          platform: "LeetCode",
+          platformUrl: `https://leetcode.com/problems/${it.leetcodeSlug}/`,
+        })
+      );
+    }
     return {
       id: "sql-75",
       title: "SQL 75 Practical",
-      description: "12 modules covering joins, aggregations, window functions, and advanced querying.",
+      description: "Modules covering joins, aggregations, window functions, and advanced querying.",
       category: "Database & SQL",
       isOfficial: true,
       badge: "Developer / Admin",

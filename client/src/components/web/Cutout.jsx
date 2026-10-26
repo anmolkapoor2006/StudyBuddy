@@ -1,5 +1,3 @@
-import React from "react";
-import { useTheme } from "../../context/ThemeContext";
 
 /**
  * Cutout: Chamfered corner container with 2-layer stroke + fill architecture.

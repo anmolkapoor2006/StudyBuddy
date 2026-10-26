@@ -148,42 +148,23 @@ exports.googleAuth = async (req, res) => {
   }
 };
 
-exports.guestAuth = async (req, res) => {
-  try {
-    const demoEmail = "guest.developer@studybuddy.dev";
-    let user = await User.findOne({ email: demoEmail });
-    if (!user) {
-      user = await User.create({
-        username: "Guest Developer",
-        email: demoEmail,
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=StudyBuddy",
-        badge: "Explorer",
-      });
-    }
-
-    const token = generateToken(user._id);
-    return sendAuthResponse(res, 200, user, token);
-  } catch (err) {
-    console.error("Guest Auth Error:", err);
-    return res.status(500).json({ success: false, message: "Failed to create guest session" });
-  }
-};
 
 exports.emailAuth = async (req, res) => {
   try {
-    const { email, name } = req.body;
-    if (!email || !email.includes("@")) {
+    const { email, name } = req.body || {};
+    if (!email || typeof email !== "string" || !email.includes("@")) {
       return res.status(400).json({ success: false, message: "Valid email address is required" });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const cleanName = typeof name === "string" ? name.trim() : "";
     let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       user = await User.create({
-        username: name?.trim() || normalizedEmail.split("@")[0],
+        username: cleanName || normalizedEmail.split("@")[0],
         email: normalizedEmail,
-        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(normalizedEmail.split("@")[0])}`,
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName || normalizedEmail.split("@")[0])}`,
       });
     }
 

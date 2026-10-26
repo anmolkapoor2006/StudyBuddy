@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, AlertTriangle, RefreshCw, Sparkles, Mail, KeyRound, X, ArrowRight } from "lucide-react";
+import { CheckCircle2, Mail, KeyRound, X, ArrowRight } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -19,11 +19,9 @@ export default function AuthPage() {
   const [isNavigatingHome, setIsNavigatingHome] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isHoveringBtn, setIsHoveringBtn] = useState(false);
   const [isOpeningGoogle, setIsOpeningGoogle] = useState(false);
   const [referralState, setReferralState] = useState(null); // null | 'verifying' | 'success'
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
-  const [showEmailForm, setShowEmailForm] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [showClientIdModal, setShowClientIdModal] = useState(false);
   const [customClientIdInput, setCustomClientIdInput] = useState(
@@ -63,14 +61,14 @@ export default function AuthPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  const getGoogleClientId = () => {
+  const getGoogleClientId = useCallback(() => {
     return (
       import.meta.env.VITE_GOOGLE_CLIENT_ID ||
       customClientIdInput ||
       localStorage.getItem("studybuddy_google_client_id") ||
       ""
     ).trim();
-  };
+  }, [customClientIdInput]);
 
   const handleGoogleResponse = useCallback(
     async (response) => {
@@ -158,31 +156,6 @@ export default function AuthPage() {
     }
   };
 
-  const handleGuestLogin = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      setReferralState("verifying");
-
-      const res = await api.post("/auth/guest");
-      if (res.data?.success) {
-        setAuthenticatedUser(res.data.user);
-        setReferralState("success");
-        login(res.data.token, res.data.user);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 800);
-      } else {
-        setReferralState(null);
-        setError("Unable to initialize guest session.");
-      }
-    } catch (err) {
-      setReferralState(null);
-      setError(err.response?.data?.message || "Failed to sign in as guest.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEmailLogin = async (e) => {
     e?.preventDefault();
@@ -267,7 +240,7 @@ export default function AuthPage() {
       script.onload = initGsi;
       document.body.appendChild(script);
     }
-  }, [handleGoogleResponse, customClientIdInput]);
+  }, [handleGoogleResponse, getGoogleClientId]);
 
   return (
     <div
@@ -430,11 +403,7 @@ export default function AuthPage() {
 
       {/* BOTTOM ACTION */}
       <div className="relative z-30 pb-8 sm:pb-12 pt-4 px-6 flex flex-col items-center mt-auto w-full max-w-md mx-auto">
-        <div
-          className="relative w-full"
-          onMouseEnter={() => setIsHoveringBtn(true)}
-          onMouseLeave={() => setIsHoveringBtn(false)}
-        >
+        <div className="relative w-full">
           {/* Invisible Google One-Tap/Button Overlay */}
           <div
             id="googleBtnDiv"
@@ -482,63 +451,40 @@ export default function AuthPage() {
         </div>
 
         {/* Alternative Auth Divider */}
+        {/* Alternative Auth Divider */}
         <div className="w-full flex items-center gap-3 my-4">
           <div className="h-[1px] bg-neutral-800/80 flex-1" />
-          <span className="text-[10px] font-mono uppercase text-neutral-500 tracking-wider">or fast access</span>
+          <span className="text-[10px] font-mono uppercase text-neutral-500 tracking-wider">or sign in with email</span>
           <div className="h-[1px] bg-neutral-800/80 flex-1" />
         </div>
 
-        {/* Fast Action Buttons: Guest / Email */}
-        <div className="w-full grid grid-cols-2 gap-2.5">
-          <button
-            type="button"
-            onClick={handleGuestLogin}
-            disabled={loading}
-            className="w-full py-2.5 px-3 rounded-lg bg-neutral-900/80 hover:bg-neutral-850 border border-neutral-800 hover:border-red-500/40 text-xs font-medium text-neutral-300 hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50"
-            title="Instant access as guest developer (no setup required)"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Guest Demo</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowEmailForm((prev) => !prev)}
-            disabled={loading}
-            className="w-full py-2.5 px-3 rounded-lg bg-neutral-900/80 hover:bg-neutral-850 border border-neutral-800 hover:border-neutral-700 text-xs font-medium text-neutral-300 hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50"
-          >
-            <Mail className="w-3.5 h-3.5 text-neutral-400" />
-            <span>{showEmailForm ? "Hide Email" : "Use Email"}</span>
-          </button>
-        </div>
-
-        {/* Optional Inline Email Login Form */}
-        {showEmailForm && (
-          <form
-            onSubmit={handleEmailLogin}
-            className="w-full mt-3 p-3.5 rounded-xl bg-neutral-950/80 border border-neutral-800/90 flex flex-col gap-2.5 animate-in fade-in duration-200"
-          >
-            <label className="text-[11px] font-mono text-neutral-400 text-left">Developer Email</label>
-            <div className="flex items-center gap-2">
+        {/* Email Login Form */}
+        <form
+          onSubmit={handleEmailLogin}
+          className="w-full p-3.5 rounded-xl bg-neutral-900/60 border border-neutral-800/80 flex flex-col gap-2.5"
+        >
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Mail className="w-3.5 h-3.5 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="you@domain.com"
+                placeholder="developer@domain.com"
                 required
-                className="flex-1 bg-black/60 border border-neutral-800 focus:border-red-500/60 rounded-lg px-3 py-1.5 text-xs text-white placeholder-neutral-600 outline-none transition"
+                className="w-full bg-black/60 border border-neutral-800 focus:border-[#BA3C3C]/60 rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-neutral-600 outline-none transition"
               />
-              <button
-                type="submit"
-                disabled={loading || !emailInput}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#BA3C3C] to-[#E04D4D] hover:opacity-90 text-white text-xs font-semibold flex items-center gap-1 transition cursor-pointer disabled:opacity-50"
-              >
-                <span>Continue</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
             </div>
-          </form>
-        )}
+            <button
+              type="submit"
+              disabled={loading || !emailInput}
+              className="px-3.5 py-2 rounded-lg bg-gradient-to-r from-[#BA3C3C] to-[#E04D4D] hover:opacity-90 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50 shadow-xs"
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+        </form>
 
         {/* Live status feedback when Google popup is open */}
         {isOpeningGoogle && !referralState && (
@@ -601,13 +547,10 @@ export default function AuthPage() {
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowClientIdModal(false);
-                      handleGuestLogin();
-                    }}
+                    onClick={() => setShowClientIdModal(false)}
                     className="px-3 py-2 rounded-lg text-xs text-neutral-400 hover:text-white transition cursor-pointer"
                   >
-                    Skip & Use Guest Mode
+                    Cancel
                   </button>
                   <button
                     type="submit"

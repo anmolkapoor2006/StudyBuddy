@@ -20,24 +20,26 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { username, name, email, badge, leetcodeHandle, codeforcesHandle } = req.body;
-    const targetUsername = (username || name)?.trim();
+    const { username, name, email, badge, leetcodeHandle, codeforcesHandle } = req.body || {};
+    const rawName = typeof username === "string" ? username : (typeof name === "string" ? name : "");
+    const targetUsername = rawName.trim();
+    const targetEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
 
-    if (!targetUsername || !email?.trim()) {
+    if (!targetUsername || !targetEmail || !targetEmail.includes("@")) {
       return res.status(400).json({
         success: false,
-        message: "Name and email are required",
+        message: "Valid name and email are required",
       });
     }
 
     const updateFields = {
       username: targetUsername,
-      email: email.trim().toLowerCase(),
+      email: targetEmail,
     };
 
-    if (badge !== undefined) updateFields.badge = badge.trim();
-    if (leetcodeHandle !== undefined) updateFields.leetcodeHandle = leetcodeHandle.trim();
-    if (codeforcesHandle !== undefined) updateFields.codeforcesHandle = codeforcesHandle.trim();
+    if (badge !== undefined) updateFields.badge = typeof badge === "string" ? badge.trim() : "";
+    if (leetcodeHandle !== undefined) updateFields.leetcodeHandle = typeof leetcodeHandle === "string" ? leetcodeHandle.trim() : "";
+    if (codeforcesHandle !== undefined) updateFields.codeforcesHandle = typeof codeforcesHandle === "string" ? codeforcesHandle.trim() : "";
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
@@ -45,16 +47,26 @@ exports.updateProfile = async (req, res) => {
       { new: true, runValidators: true }
     ).select("-password");
 
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     res.status(200).json({
       success: true,
       message: "Profile updated successfully",
       user: userResponse(updatedUser),
     });
   } catch (error) {
-    console.error("[Update Profile]", error.message);
+    if (error.name === "CastError") {
+      return res.status(400).json({ success: false, message: "Invalid user ID" });
+    }
     if (error.code === 11000) {
       return res.status(409).json({ success: false, message: "Email is already in use" });
     }
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    console.error("[Update Profile]", error.message);
     res.status(500).json({ success: false, message: "Failed to update profile" });
   }
 };

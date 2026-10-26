@@ -17,7 +17,9 @@ const VideoPlayer = memo(({ videoId, thumbnailUrl, title, startTime = 0, onPlaye
     if (startTime > 0) {
       try {
         ytPlayer.seekTo(startTime, true);
-      } catch {}
+      } catch (_err) {
+        // Player may not have finished initial buffering
+      }
     }
 
     setLoading(false);

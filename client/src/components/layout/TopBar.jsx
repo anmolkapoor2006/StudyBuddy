@@ -12,6 +12,7 @@ import {
   Settings,
   ChevronDown,
   Home,
+  Menu,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
@@ -189,6 +190,17 @@ export default function TopBar({ title, showBack = false, onMenuClick }) {
       <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 gap-3">
         {/* Left: Branding & Context */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          {onMenuClick && (
+            <button
+              type="button"
+              onClick={onMenuClick}
+              title="Open menu"
+              aria-label="Open menu"
+              className="lg:hidden p-1.5 rounded-lg text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer shrink-0"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
           <button
             onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2.5 font-brand tracking-tight group cursor-pointer text-left focus:outline-none select-none py-1"

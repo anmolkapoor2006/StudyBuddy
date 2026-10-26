@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 
 const ThemeContext = createContext(null);
 
@@ -8,17 +8,21 @@ export function ThemeProvider({ children }) {
       const savedTheme = localStorage.getItem("studybuddy_theme");
       if (savedTheme === "web") return "dark"; // migrated to dark theme + web skin
       if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
-    } catch {}
+    } catch (_err) {
+      // Fallback to dark if localStorage is inaccessible
+    }
     return "dark"; // Default theme remains dark
   });
 
-  const [skin, setSkin] = useState(() => {
+  const [skin, setSkinState] = useState(() => {
     try {
       const savedTheme = localStorage.getItem("studybuddy_theme");
       const savedSkin = localStorage.getItem("studybuddy_skin");
       if (savedTheme === "web") return "web"; // migrated legacy setting
       if (savedSkin === "web" || savedSkin === "basic") return savedSkin;
-    } catch {}
+    } catch (_err) {
+      // Fallback to web skin
+    }
     return "web"; // Default skin is web
   });
 
@@ -26,7 +30,9 @@ export function ThemeProvider({ children }) {
     try {
       const saved = localStorage.getItem("studybuddy_animated_bg");
       if (saved !== null) return saved === "true";
-    } catch {}
+    } catch (_err) {
+      // Fallback to true
+    }
     return true; // Default animated background is On
   });
 
@@ -41,34 +47,40 @@ export function ThemeProvider({ children }) {
       localStorage.setItem("studybuddy_theme", theme);
       localStorage.setItem("studybuddy_skin", skin);
       localStorage.setItem("studybuddy_animated_bg", String(animatedBg));
-    } catch {}
+    } catch (_err) {
+      // Ignore storage write issues
+    }
   }, [theme, skin, animatedBg]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  }, []);
 
-  const toggleSkin = () => {
+  const toggleSkin = useCallback(() => {
     const nextSkin = skin === "web" ? "basic" : "web";
     try {
       localStorage.setItem("studybuddy_skin", nextSkin);
       document.documentElement.setAttribute("data-skin", nextSkin);
-    } catch {}
-    window.location.reload();
-  };
+    } catch (_err) {
+      // Ignore storage write issues
+    }
+    setSkinState(nextSkin);
+  }, [skin]);
 
-  const handleSetSkin = (newSkin) => {
+  const handleSetSkin = useCallback((newSkin) => {
     if (newSkin === skin) return;
     try {
       localStorage.setItem("studybuddy_skin", newSkin);
       document.documentElement.setAttribute("data-skin", newSkin);
-    } catch {}
-    window.location.reload();
-  };
+    } catch (_err) {
+      // Ignore storage write issues
+    }
+    setSkinState(newSkin);
+  }, [skin]);
 
-  const toggleAnimatedBg = () => {
+  const toggleAnimatedBg = useCallback(() => {
     setAnimatedBg((prev) => !prev);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -84,7 +96,7 @@ export function ThemeProvider({ children }) {
       isDark: theme === "dark",
       isWeb: skin === "web",
     }),
-    [theme, skin, animatedBg],
+    [theme, skin, animatedBg, toggleTheme, handleSetSkin, toggleSkin, toggleAnimatedBg],
   );
 
   return (
@@ -100,3 +112,4 @@ export function useTheme() {
   }
   return context;
 }
+

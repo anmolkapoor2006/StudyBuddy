@@ -47,7 +47,7 @@ export default function PlaylistPlayer() {
 
     saveRecentPlaylist(playlist);
     saveRecentPlayer(playlist._id, currentVideo);
-  }, [playlist?._id, currentVideo?._id]);
+  }, [playlist, currentVideo]);
 
   const currentIndex = useMemo(() => {
     return videos.findIndex((v) => v._id === currentVideo?._id);

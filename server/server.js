@@ -154,7 +154,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== "production" || require.main === module) {
+if (require.main === module) {
   const server = app.listen(PORT, () => {
     console.log(`🚀 StudyBuddy API running on http://localhost:${PORT}`);
   });

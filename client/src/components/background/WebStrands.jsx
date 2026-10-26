@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
 import { useCanvasLoop } from "./useCanvasLoop";
 
 const TOKEN_NAMES = [
@@ -586,9 +586,6 @@ export default function WebStrands({
       }
     });
   }, [
-    mainRadiusFraction,
-    secondaryRadiusFraction,
-    pulseCount,
     strandOpacity,
     spokeWidth,
     ringWidth,

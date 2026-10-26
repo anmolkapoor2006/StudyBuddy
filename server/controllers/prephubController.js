@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const mongoose = require("mongoose");
 const UserCodingProgress = require("../models/UserCodingProgress");
 const User = require("../models/User");
 const userResponse = require("../utils/userResponse");
@@ -46,13 +47,223 @@ function initData() {
 
 initData();
 
+const CORE_SUBJECTS_FALLBACK = {
+  os: {
+    subjectName: "Operating Systems",
+    totalModules: 5,
+    totalItems: 20,
+    modules: [
+      {
+        moduleId: "mod-os-1",
+        moduleTitle: "Processes & Threads",
+        items: [
+          { id: 1, title: "Process vs Program vs Thread", description: "PCB, Context Switching, Multithreading models." },
+          { id: 2, title: "Process State Lifecycle", description: "New, Ready, Running, Waiting, Terminated states and transitions." },
+          { id: 3, title: "Inter-Process Communication (IPC)", description: "Shared Memory, Pipes, Message Queues, Sockets." },
+          { id: 4, title: "Fork, Exec, and Wait System Calls", description: "Process hierarchy, zombie processes, orphan processes." },
+        ],
+      },
+      {
+        moduleId: "mod-os-2",
+        moduleTitle: "CPU Scheduling Algorithms",
+        items: [
+          { id: 5, title: "First-Come First-Served (FCFS)", description: "Convoy effect, average turnaround and waiting time." },
+          { id: 6, title: "Shortest Job First (SJF) & SRTF", description: "Optimal average waiting times, preemption." },
+          { id: 7, title: "Round Robin (RR) Scheduling", description: "Time quantum selection, response time vs context switch overhead." },
+          { id: 8, title: "Priority & Multilevel Feedback Queues", description: "Aging technique to prevent process starvation." },
+        ],
+      },
+      {
+        moduleId: "mod-os-3",
+        moduleTitle: "Synchronization & Deadlocks",
+        items: [
+          { id: 9, title: "Critical Section Problem & Race Conditions", description: "Mutual exclusion, progress, bounded waiting criteria." },
+          { id: 10, title: "Mutexes vs Semaphores", description: "Binary vs counting semaphores, wait (P) and signal (V)." },
+          { id: 11, title: "Classic Problems: Producer-Consumer & Readers-Writers", description: "Synchronization patterns and race avoidance." },
+          { id: 12, title: "Deadlock Conditions & Banker's Algorithm", description: "Coffman conditions, detection, prevention, and recovery." },
+        ],
+      },
+      {
+        moduleId: "mod-os-4",
+        moduleTitle: "Memory Management & Virtual Memory",
+        items: [
+          { id: 13, title: "Paging vs Segmentation", description: "Page tables, TLB, internal vs external fragmentation." },
+          { id: 14, title: "Virtual Memory & Page Faults", description: "Demand paging, page fault interrupt flow." },
+          { id: 15, title: "Page Replacement Algorithms", description: "FIFO, LRU, Optimal, Belady's anomaly." },
+          { id: 16, title: "Thrashing & Working Set Model", description: "Degree of multiprogramming and performance recovery." },
+        ],
+      },
+      {
+        moduleId: "mod-os-5",
+        moduleTitle: "Storage & File Systems",
+        items: [
+          { id: 17, title: "Inodes and Directory Structure", description: "Hard links vs soft links, block pointers." },
+          { id: 18, title: "Disk Scheduling: FCFS, SSTF, SCAN, LOOK", description: "Seek time optimization." },
+          { id: 19, title: "RAID Levels (0, 1, 5, 10)", description: "Striping, mirroring, parity, fault tolerance." },
+        ],
+      },
+    ],
+  },
+  dbms: {
+    subjectName: "Database Management Systems",
+    totalModules: 5,
+    totalItems: 18,
+    modules: [
+      {
+        moduleId: "mod-db-1",
+        moduleTitle: "Relational Model & Key Constraints",
+        items: [
+          { id: 1, title: "Keys: Primary, Candidate, Foreign, Composite", description: "Referential integrity constraints." },
+          { id: 2, title: "Entity-Relationship (ER) Modeling", description: "Entities, attributes, cardinality, ER-to-Relational conversion." },
+          { id: 3, title: "Relational Algebra Fundamentals", description: "Select, Project, Cartesian Product, Natural Join." },
+        ],
+      },
+      {
+        moduleId: "mod-db-2",
+        moduleTitle: "SQL Queries & Aggregations",
+        items: [
+          { id: 4, title: "SQL Joins: Inner, Left, Right, Full Outer", description: "Join conditions and null handling." },
+          { id: 5, title: "Group By, Having vs Where", description: "Order of query execution in SQL engines." },
+          { id: 6, title: "Window Functions: ROW_NUMBER, RANK, DENSE_RANK", description: "Partition by, order by, window frames." },
+          { id: 7, title: "CTEs & Subqueries", description: "Correlated subqueries and common table expressions." },
+        ],
+      },
+      {
+        moduleId: "mod-db-3",
+        moduleTitle: "Schema Normalization",
+        items: [
+          { id: 8, title: "Functional Dependencies & Closures", description: "Attribute closures, candidate key determination." },
+          { id: 9, title: "1NF, 2NF, 3NF Normal Forms", description: "Eliminating partial and transitive dependencies." },
+          { id: 10, title: "Boyce-Codd Normal Form (BCNF)", description: "Lossless join decomposition and dependency preservation." },
+        ],
+      },
+      {
+        moduleId: "mod-db-4",
+        moduleTitle: "ACID & Concurrency Control",
+        items: [
+          { id: 11, title: "ACID Properties Explained", description: "Atomicity, Consistency, Isolation, Durability guarantees." },
+          { id: 12, title: "Schedules & Conflict Serializability", description: "Precedence graphs, conflict vs view serializability." },
+          { id: 13, title: "Concurrency Anomalies & Isolation Levels", description: "Dirty read, non-repeatable read, phantom read, snapshot isolation." },
+          { id: 14, title: "Two-Phase Locking (2PL)", description: "Strict 2PL, growing and shrinking phases, deadlocks." },
+        ],
+      },
+      {
+        moduleId: "mod-db-5",
+        moduleTitle: "Indexing & Storage",
+        items: [
+          { id: 15, title: "Clustered vs Non-Clustered Indexes", description: "Data arrangement on disk, primary vs secondary indices." },
+          { id: 16, title: "B-Trees vs B+ Trees", description: "Leaf node linked list traversal for range queries." },
+          { id: 17, title: "Write-Ahead Logging (WAL) & Recovery", description: "Undo/Redo logs, checkpoints, ARIES recovery." },
+        ],
+      },
+    ],
+  },
+  cn: {
+    subjectName: "Computer Networks",
+    totalModules: 5,
+    totalItems: 17,
+    modules: [
+      {
+        moduleId: "mod-cn-1",
+        moduleTitle: "Layered Architectures",
+        items: [
+          { id: 1, title: "OSI 7-Layer vs TCP/IP 4-Layer Model", description: "Encapsulation, decapsulation, headers, protocols." },
+          { id: 2, title: "Network Hardware & Topologies", description: "Hubs, Switches, Routers, Gateways." },
+        ],
+      },
+      {
+        moduleId: "mod-cn-2",
+        moduleTitle: "Application Layer Protocols",
+        items: [
+          { id: 3, title: "HTTP 1.1 vs HTTP/2 vs HTTP/3 (QUIC)", description: "Multiplexing, header compression, stream transport." },
+          { id: 4, title: "DNS (Domain Name System)", description: "Hierarchical resolution, caching, recursive vs iterative lookups." },
+          { id: 5, title: "WebSockets, gRPC, and REST", description: "Persistent full-duplex TCP streams vs HTTP request-response." },
+        ],
+      },
+      {
+        moduleId: "mod-cn-3",
+        moduleTitle: "Transport Layer: TCP & UDP",
+        items: [
+          { id: 6, title: "TCP 3-Way Handshake & 4-Way Teardown", description: "SYN, SYN-ACK, ACK, FIN, TIME_WAIT." },
+          { id: 7, title: "TCP Flow Control: Sliding Window", description: "Receiver window buffer, zero window probes." },
+          { id: 8, title: "TCP Congestion Control", description: "Slow start, congestion avoidance, fast retransmit, fast recovery." },
+          { id: 9, title: "TCP vs UDP Tradeoffs", description: "Reliability vs low latency streaming and gaming." },
+        ],
+      },
+      {
+        moduleId: "mod-cn-4",
+        moduleTitle: "Network Layer & Routing",
+        items: [
+          { id: 10, title: "IPv4 vs IPv6 & Subnetting", description: "CIDR masks, network vs host IDs." },
+          { id: 11, title: "NAT & DHCP", description: "Private IP translation, dynamic address assignment handshake." },
+          { id: 12, title: "Routing Protocols: RIP vs OSPF vs BGP", description: "Distance vector vs link state algorithms." },
+          { id: 13, title: "ARP & ICMP", description: "IP to MAC resolution, Ping, Traceroute." },
+        ],
+      },
+      {
+        moduleId: "mod-cn-5",
+        moduleTitle: "Link Layer & Security",
+        items: [
+          { id: 14, title: "Framing & Error Detection: CRC", description: "Bit stuffing, cyclic redundancy checks." },
+          { id: 15, title: "CSMA/CD vs CSMA/CA", description: "Collision detection in Ethernet vs avoidance in Wi-Fi." },
+          { id: 16, title: "TLS/SSL & HTTPS", description: "Handshake, certificates, symmetric session keys." },
+        ],
+      },
+    ],
+  },
+  sql: {
+    subjectName: "SQL Interview 75",
+    totalModules: 4,
+    totalItems: 15,
+    modules: [
+      {
+        moduleId: "mod-sql-1",
+        moduleTitle: "Select & Joins",
+        items: [
+          { id: 175, title: "Combine Two Tables", leetcodeUrl: "https://leetcode.com/problems/combine-two-tables/", leetcodeDifficulty: "Easy" },
+          { id: 181, title: "Employees Earning More Than Their Managers", leetcodeUrl: "https://leetcode.com/problems/employees-earning-more-than-their-managers/", leetcodeDifficulty: "Easy" },
+          { id: 182, title: "Duplicate Emails", leetcodeUrl: "https://leetcode.com/problems/duplicate-emails/", leetcodeDifficulty: "Easy" },
+          { id: 183, title: "Customers Who Never Order", leetcodeUrl: "https://leetcode.com/problems/customers-who-never-order/", leetcodeDifficulty: "Easy" },
+        ],
+      },
+      {
+        moduleId: "mod-sql-2",
+        moduleTitle: "Aggregations & Grouping",
+        items: [
+          { id: 184, title: "Department Highest Salary", leetcodeUrl: "https://leetcode.com/problems/department-highest-salary/", leetcodeDifficulty: "Medium" },
+          { id: 196, title: "Delete Duplicate Emails", leetcodeUrl: "https://leetcode.com/problems/delete-duplicate-emails/", leetcodeDifficulty: "Easy" },
+          { id: 197, title: "Rising Temperature", leetcodeUrl: "https://leetcode.com/problems/rising-temperature/", leetcodeDifficulty: "Easy" },
+        ],
+      },
+      {
+        moduleId: "mod-sql-3",
+        moduleTitle: "Window Functions & Ranking",
+        items: [
+          { id: 176, title: "Second Highest Salary", leetcodeUrl: "https://leetcode.com/problems/second-highest-salary/", leetcodeDifficulty: "Medium" },
+          { id: 177, title: "Nth Highest Salary", leetcodeUrl: "https://leetcode.com/problems/nth-highest-salary/", leetcodeDifficulty: "Medium" },
+          { id: 178, title: "Rank Scores", leetcodeUrl: "https://leetcode.com/problems/rank-scores/", leetcodeDifficulty: "Medium" },
+          { id: 180, title: "Consecutive Numbers", leetcodeUrl: "https://leetcode.com/problems/consecutive-numbers/", leetcodeDifficulty: "Medium" },
+        ],
+      },
+      {
+        moduleId: "mod-sql-4",
+        moduleTitle: "Advanced Queries & CTEs",
+        items: [
+          { id: 185, title: "Department Top Three Salaries", leetcodeUrl: "https://leetcode.com/problems/department-top-three-salaries/", leetcodeDifficulty: "Hard" },
+          { id: 262, title: "Trips and Users", leetcodeUrl: "https://leetcode.com/problems/trips-and-users/", leetcodeDifficulty: "Hard" },
+          { id: 601, title: "Human Traffic of Stadium", leetcodeUrl: "https://leetcode.com/problems/human-traffic-of-stadium/", leetcodeDifficulty: "Hard" },
+        ],
+      },
+    ],
+  },
+};
+
 /**
  * GET /api/prephub/subjects
  * High-level overview grouped into Core CS and DSA roadmaps
  */
 exports.getOverview = async (req, res) => {
   try {
-
     const globalSheets = await GlobalSheet.find({}).lean().catch(() => []);
     const globalMap = new Map(globalSheets.map((g) => [g.id, g]));
 
@@ -67,25 +278,65 @@ exports.getOverview = async (req, res) => {
     const dsaSubjects = [];
     const rkSubjects = [];
 
-    // 1. Dynamic Core CS Cards: Only SQL 75 for initial release
+    // 1. Dynamic Core CS Cards: OS, DBMS, CN, SQL
+    const osData = cache.os || CORE_SUBJECTS_FALLBACK.os;
+    coreSubjects.push({
+      id: "os",
+      title: osData.subjectName || "Operating Systems",
+      category: "Computer Science Core",
+      group: "core",
+      modulesCount: osData.modules?.length || osData.totalModules || 5,
+      topicsCount: osData.totalItems || 20,
+      description: "Processes, CPU scheduling, concurrency, virtual memory, and storage management.",
+      badge: "Fundamental",
+      uploadedBy: "Developer / Admin",
+      isOfficial: true,
+    });
 
-    if (sql75Global || cache.sql?.modules?.length) {
-      coreSubjects.push({
-        id: "sql",
-        title: sql75Global?.title || cache.sql?.sheetName || "SQL Interview 75",
-        category: "Databases & Practical Queries",
-        group: "core",
-        modulesCount: cache.sql?.totalModules || cache.sql?.modules?.length || 12,
-        topicsCount: sql75Global?.problems?.length || cache.sql?.totalItems || 75,
-        description: "Frequently asked SQL interview problems covering aggregations, joins, window functions, and CTEs.",
-        badge: "Hands-on",
-        sheetId: "sql-75",
-        uploadedBy: "Developer / Admin",
-        isOfficial: true,
-        sourceUrl: sql75Global?.sourceUrl || "",
-        lastSyncedAt: sql75Global?.lastSyncedAt || null,
-      });
-    }
+    const dbmsData = cache.dbms || CORE_SUBJECTS_FALLBACK.dbms;
+    coreSubjects.push({
+      id: "dbms",
+      title: dbmsData.subjectName || "Database Management Systems",
+      category: "Computer Science Core",
+      group: "core",
+      modulesCount: dbmsData.modules?.length || dbmsData.totalModules || 5,
+      topicsCount: dbmsData.totalItems || 18,
+      description: "Relational model, ER modeling, SQL, normalization, ACID transactions, and indexing.",
+      badge: "Fundamental",
+      uploadedBy: "Developer / Admin",
+      isOfficial: true,
+    });
+
+    const cnData = cache.cn || CORE_SUBJECTS_FALLBACK.cn;
+    coreSubjects.push({
+      id: "cn",
+      title: cnData.subjectName || "Computer Networks",
+      category: "Computer Science Core",
+      group: "core",
+      modulesCount: cnData.modules?.length || cnData.totalModules || 5,
+      topicsCount: cnData.totalItems || 17,
+      description: "OSI/TCP-IP models, HTTP/DNS, TCP flow/congestion control, subnetting, and security.",
+      badge: "Fundamental",
+      uploadedBy: "Developer / Admin",
+      isOfficial: true,
+    });
+
+    const sqlData = cache.sql || CORE_SUBJECTS_FALLBACK.sql;
+    coreSubjects.push({
+      id: "sql",
+      title: sql75Global?.title || sqlData.subjectName || "SQL Interview 75",
+      category: "Databases & Practical Queries",
+      group: "core",
+      modulesCount: sqlData.modules?.length || 4,
+      topicsCount: sql75Global?.problems?.length || sqlData.totalItems || 15,
+      description: "Frequently asked SQL interview problems covering aggregations, joins, window functions, and CTEs.",
+      badge: "Hands-on",
+      sheetId: "sql-75",
+      uploadedBy: "Developer / Admin",
+      isOfficial: true,
+      sourceUrl: sql75Global?.sourceUrl || "",
+      lastSyncedAt: sql75Global?.lastSyncedAt || null,
+    });
 
     // 2. Dynamic DSA Cards (strictly included only if dataset is available)
     if (sde180Global || cache.tuf180?.modules?.length) {
@@ -263,15 +514,15 @@ exports.getSubjectDetails = async (req, res) => {
 
     // 1. Core CS: OS, DBMS, CN
     if (["os", "dbms", "cn"].includes(lowerId)) {
-      const data = cache[lowerId];
+      const data = cache[lowerId] || CORE_SUBJECTS_FALLBACK[lowerId];
       if (!data) return res.status(404).json({ success: false, message: "Subject syllabus data unavailable" });
       return res.json({
         success: true,
         subjectId,
         group: "core",
         title: data.subjectName || data.sheetName,
-        totalModules: data.totalModules,
-        totalItems: data.totalItems,
+        totalModules: data.totalModules || data.modules?.length || 5,
+        totalItems: data.totalItems || 20,
         modules: data.modules,
         uploadedBy: "Developer / Admin",
         isOfficial: true,
@@ -281,7 +532,7 @@ exports.getSubjectDetails = async (req, res) => {
     // 2. Core CS / SQL: sql or sql-75
     if (lowerId === "sql" || lowerId === "sql-75") {
       const globalSheet = await GlobalSheet.findOne({ id: "sql-75" }).lean().catch(() => null);
-      const data = cache.sql;
+      const data = cache.sql || CORE_SUBJECTS_FALLBACK.sql;
       if (!data && !globalSheet) return res.status(404).json({ success: false, message: "SQL syllabus data unavailable" });
       const modules = (data?.modules?.length ? data.modules : null) || buildModulesFromProblems(globalSheet?.problems || []);
       return res.json({
@@ -501,11 +752,14 @@ exports.verifyPasskey = async (req, res) => {
  */
 exports.requestVerification = async (req, res) => {
   try {
-    const { studentName, contact, rollNo, batch } = req.body;
-    if (!studentName || !contact) {
+    const { studentName, contact, rollNo, batch } = req.body || {};
+    const sName = typeof studentName === "string" ? studentName.trim() : "";
+    const sContact = typeof contact === "string" ? String(contact).trim() : (typeof contact === "number" ? String(contact) : "");
+
+    if (!sName || !sContact) {
       return res.status(400).json({
         success: false,
-        message: "Student Name and Phone Number are required",
+        message: "Student Name and Contact are required",
       });
     }
 
@@ -516,17 +770,17 @@ exports.requestVerification = async (req, res) => {
 
     user.rkStatus = "pending";
     user.rkStudentDetails = {
-      studentName: studentName.trim(),
-      contact: contact.trim(),
-      rollNo: (rollNo || "").trim(),
-      batch: (batch || "").trim(),
+      studentName: sName,
+      contact: sContact,
+      rollNo: typeof rollNo === "string" ? rollNo.trim() : "",
+      batch: typeof batch === "string" ? batch.trim() : "",
       requestedAt: new Date(),
     };
     await user.save();
 
     return res.json({
       success: true,
-      message: "Verification request submitted! Your instructor will review it shortly.",
+      message: "Verification request submitted! Your administrator will review it shortly.",
       user: userResponse(user),
     });
   } catch (error) {
@@ -568,8 +822,8 @@ exports.getPendingVerifications = async (req, res) => {
  */
 exports.decideVerification = async (req, res) => {
   try {
-    const { userId, decision } = req.body;
-    if (!userId || !["approve", "reject"].includes(decision)) {
+    const { userId, decision } = req.body || {};
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId) || !["approve", "reject"].includes(decision)) {
       return res.status(400).json({ success: false, message: "Valid userId and decision required" });
     }
 
@@ -588,6 +842,9 @@ exports.decideVerification = async (req, res) => {
       status: targetUser.rkStatus,
     });
   } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ success: false, message: "Invalid user ID" });
+    }
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

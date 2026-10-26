@@ -3,7 +3,7 @@ const rateLimit = require("express-rate-limit");
 /**
  * Helper to identify user:
  * Uses User ID if authenticated (solves shared college/hostel Wi-Fi issue),
- * falls back to public IP for anonymous guests.
+ * falls back to public IP for unauthenticated requests.
  */
 const getUserOrIpKey = (req) => {
   return req.user?.id ? `user_${req.user.id}` : req.ip;

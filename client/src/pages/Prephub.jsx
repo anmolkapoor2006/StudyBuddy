@@ -11,9 +11,7 @@ import {
   Cpu,
   Globe,
   Flame,
-  Lock,
   Code2,
-  ShieldCheck,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -303,25 +301,9 @@ export default function Prephub() {
             <SidebarTrigger />
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-100 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-red-400" />
-              Workspace
+              Prep Hub
             </h1>
             <div className="flex items-center gap-2">
-              {user?.role === "admin" && (
-                <button
-                  type="button"
-                  onClick={() => setIsAdminModalOpen(true)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-semibold transition cursor-pointer"
-                  title="Admin: Review pending student verification requests"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Admin</span>
-                  {pendingCount > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[10px] font-mono font-bold">
-                      {pendingCount}
-                    </span>
-                  )}
-                </button>
-              )}
 
               <button
                 type="button"

@@ -1,18 +1,11 @@
-import { useState, createContext, useContext } from "react";
+import { useState } from "react";
 import { Menu } from "lucide-react";
 import BackgroundGlow from "../common/BackgroundGlow";
 import HeroWeb from "../web/HeroWeb";
 import { useTheme } from "../../context/ThemeContext";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
-
-export const SidebarContext = createContext({
-  isOpen: false,
-  setIsOpen: () => {},
-  toggleSidebar: () => {},
-});
-
-export const useSidebar = () => useContext(SidebarContext);
+import { SidebarContext, useSidebar } from "./SidebarContext";
 
 export function SidebarTrigger({ className = "" }) {
   const { toggleSidebar } = useSidebar();

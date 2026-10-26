@@ -7,7 +7,6 @@ import api from "../../api/axios";
 
 export default function PlayerSidebar({
   videos = [],
-  playlist,
   currentVideo,
   currentIndex = 0,
   player,
@@ -60,14 +59,16 @@ export default function PlayerSidebar({
       setGeneralNotesText(currentVideo.notes || "");
       fetchNotes(currentVideo._id);
     }
-  }, [currentVideo?._id, fetchNotes]);
+  }, [currentVideo?._id, currentVideo?.notes, fetchNotes]);
 
   // Capture current playback timestamp directly from player
   const getPlaybackTime = () => {
     if (player && typeof player.getCurrentTime === "function") {
       try {
         return Math.floor(player.getCurrentTime() || 0);
-      } catch {}
+      } catch (_err) {
+        // Player may not be initialized yet
+      }
     }
     return 0;
   };
